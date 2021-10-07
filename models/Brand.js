@@ -3,17 +3,17 @@ const mongoose = require('mongoose');
 
 const brandSchema = new mongoose.Schema({
 
-     name = {
-         type: String, 
-         required: true
-     },
-   isDeleted: {
-     type: Boolean,
-     default: false
+   name: {
+      type: String,
+      required: true
    },
-   cuisines:[
-      {type: Schema.Types.ObjectId, ref: 'Cuisine'}
-    ]
+   isDeleted: {
+      type: Boolean,
+      default: false
+   },
+   cuisineId: {
+      type: mongoose.Schema.Types.ObjectId, ref: 'Cuisine'
+   }
 }, {
    timestamps: true
 });
