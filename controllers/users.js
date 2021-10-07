@@ -1,32 +1,32 @@
 const mongose = require('mongoose');
-const bodyparser = require('body-parser');
 const router = require('express').Router();
-//const bcrypt = require('bcrypt');
 
-const User = require('../models/User');
+const Profile = require('../models/Profile');
 
 
 //CREATES A NEW USER
 router.post('/', async (req, res) => {
 
-     User.create ({
+     Profile.create ({
             firstName: req.body.firstName,
             lastName: req.body.lastName,
             email: req.body.email,
             password: req.body.password
      });
      try{
-        const savedUser = await User.save();
+        const savedUser = await Profile.save();
         res.json(savedUser);
     }catch(error){
        res.json({message : error});
     }
 });
 
+
+
 // RETURNS ALL THE USERS IN THE DATABASE
 router.get('/', async (req, res) => {
        try{
-             const users = await User.find();
+             const users = await Profile.find();
              res.json(users);
        }catch(error){
             res.json({message: error});
@@ -36,7 +36,7 @@ router.get('/', async (req, res) => {
 //GET A SINGLE USER FROM A DATABASE.
 router.get('/:id', async (req, res) => {
        try{
-          const user = await User.findById(req.params.id);
+          const user = await Profile.findById(req.params.id);
              res.json(user);
        }catch(error){
            res.json({message: error});
@@ -46,7 +46,7 @@ router.get('/:id', async (req, res) => {
 //DELETE A USER FROM THE DATABASE.
 router.delete('/:id', async (req, res) => {
     try{
-        const removedUser = await User.remove({ _id: req.params.id});
+        const removedUser = await Profile.remove({ _id: req.params.id});
         res.json(removedUser);
     }catch(error)
     {
@@ -57,7 +57,7 @@ router.delete('/:id', async (req, res) => {
 //UPDATE A USER IN A DATABASE.
 router.put('/:id', async (req, res) => {
    try{
-         const updateuser = await User.findByIdAndUpdate(req.params.id, req.body, {new: true});
+         const updateuser = await Profile.findByIdAndUpdate(req.params.id, req.body, {new: true});
            res.json(updateuser);
    }catch(err){
        res.json(err);

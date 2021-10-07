@@ -14,14 +14,6 @@ const productSchema = new mongoose.Schema({
     description = {
        tyep: String
     },
-    createdAt: {
-       type: Date,
-       default: Date.now
-    },
-    updatedAt: {
-     type: Date,
-     default: Date.now
-  },
   isDeleted: {
     type: Boolean,
     default: false
@@ -30,6 +22,9 @@ const productSchema = new mongoose.Schema({
      {type: Schema.Types.ObjectId, ref: 'Brand'}
    ]
 
+},
+{
+   timestamps: true
 });
 
 

@@ -7,14 +7,6 @@ const brandSchema = new mongoose.Schema({
          type: String, 
          required: true
      },
-     createdAt: {
-        type: Date,
-        default: Date.now
-     },
-     updatedAt: {
-      type: Date,
-      default: Date.now
-   },
    isDeleted: {
      type: Boolean,
      default: false
@@ -22,6 +14,8 @@ const brandSchema = new mongoose.Schema({
    cuisines:[
       {type: Schema.Types.ObjectId, ref: 'Cuisine'}
     ]
+}, {
+   timestamps: true
 });
 
 

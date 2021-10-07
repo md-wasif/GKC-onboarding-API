@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const userSchema = new mongoose.Schema({
+const profileSchema = new mongoose.Schema({
      firstName: {
        type: String,
        required: true
@@ -18,17 +18,7 @@ const userSchema = new mongoose.Schema({
           type: String,
           required: true,
           min: 6
-      },
-   isDeleted: {
-     type: Boolean,
-     default: false
-   },
-   isActive: {
-     type: Boolean,
-     default: true
-   }
-}, {
-  timestamps: true
+      }
 });
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('Profile', profileSchema);

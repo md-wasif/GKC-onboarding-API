@@ -7,18 +7,12 @@ const cuisineSchema = new mongoose.Schema({
          type: String, 
          required: true
      },
-     createdAt: {
-        type: Date,
-        default: Date.now
-     },
-     updatedAt: {
-      type: Date,
-      default: Date.now
-   },
    isDeleted: {
      type: Boolean,
      default: false
-   }
+   },
+},{
+   timestamps: true
 });
 
 
