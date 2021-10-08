@@ -3,32 +3,26 @@ const mongoose = require('mongoose');
 
 const userBrandSchema = new mongoose.Schema({
 
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
-  },
   isDeleted: {
     type: Boolean,
     default: false
   },
   isActive: {
     type: Boolean,
-    default: false
+    default: true
   },
-  user: {
-    type: mongoose.Schema.Types.ObjectId, ref: 'User'
+  userId: {
+    type: mongoose.Schema.Types.ObjectId, ref: 'Profile'
   },
-  brands: {
+  brandId: {
     type: mongoose.Schema.Types.ObjectId, ref: 'Brand'
   },
-  products: [{
+  productsId: [{
     type: mongoose.Schema.Types.ObjectId, ref: 'Product'
   }
   ]
+}, {
+  timestamps: true
 });
 
 

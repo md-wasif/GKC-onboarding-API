@@ -14,7 +14,7 @@ router.post('/createUser', async (req, res) => {
         email: req.body.email,
         password: req.body.password,
         isDeleted: req.body.isDeleted,
-        isActive: req.body.isActive
+        isActive: req.body.isActive,
     });
     try {
         const savedUser = await User.save();
