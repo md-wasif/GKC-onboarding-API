@@ -9,6 +9,7 @@ const authVerification = require('../routes/verifyToken');
 
 
 
+
 const parseJwt = async (token) => {
     var base64Url = token.split('.')[1];
     var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -16,7 +17,7 @@ const parseJwt = async (token) => {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
 
-    //console.log(jsonPayload);
+    console.log(jsonPayload);
     return JSON.parse(jsonPayload);
 };
 
@@ -100,13 +101,19 @@ router.get('/getProducts', async (req, res) => {
 //POST /createBrand get brand from insert Id and return brand object with count of products..
 router.post('/createBrand', authVerification, async (req, res) => {
 
-    const token = req.header('auth-token');
-    const userId = await parseJwt(token);
-    await UserBrand.create({
+      const token = req.header('auth-token');
+      console.log(token);
+      const filterId = await parseJwt(token);
+       const userId = filterId.id;
+       console.log(userId);
+
+    const users = await UserBrand.create({
+        profile: userId,
         brand: req.body.brand,
         products: req.body.products,
-        profile: userId.id
     });
+    console.log(users);
+    //console.log(UserBrand);
     try {
         const userbrands = await UserBrand.save();
         console.log(userbrands);
