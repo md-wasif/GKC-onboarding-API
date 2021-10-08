@@ -11,13 +11,13 @@ const userBrandSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
-  userId: {
+  profile: {
     type: mongoose.Schema.Types.ObjectId, ref: 'Profile'
   },
-  brandId: {
+  brand: {
     type: mongoose.Schema.Types.ObjectId, ref: 'Brand'
   },
-  productsId: [{
+  products: [{
     type: mongoose.Schema.Types.ObjectId, ref: 'Product'
   }
   ]

@@ -18,7 +18,7 @@ const profileSchema = new mongoose.Schema({
     type: String,
     required: true,
     min: 6
-  }
+  },
 });
 
 module.exports = mongoose.model('Profile', profileSchema);

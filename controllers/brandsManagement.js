@@ -5,6 +5,7 @@ const Brand = require('../models/Brand');
 const Cuisine = require('../models/Cuisine');
 const Product = require('../models/Product');
 const UserBrand = require('../models/UserBrand');
+const authVerification = require('../routes/verifyToken');
 
 
 
@@ -19,6 +20,8 @@ const parseJwt = async (token) => {
     return JSON.parse(jsonPayload);
 };
 
+//UserId: "615d97f5204f20834f16f6e1"
+//BrandId: "615ee70c82b3b22d6c191fba"
 //GET /getAllBrands get all brands for user...
 router.get('/getAllBrands', async (req, res) => {
 
@@ -65,10 +68,9 @@ router.get('/getCuisines', async (req, res) => {
 //GET /getBrands get all brands for cuisine..
 router.get('/getBrands', async (req, res) => {
 
-    let cuisineId = req.query.cuisineId;
-    console.log(cuisineId);
+    let cuisine = req.query.cuisine;
     try {
-        const brands = await Brand.find({ cuisine: cuisineId }).select("-isDeleted -cuisineId");
+        const brands = await Brand.find({ cuisine: cuisine }).select("-isDeleted -cuisineId");
         res.json(brands);
     } catch (error) {
         res.json({ message: error });
@@ -79,9 +81,9 @@ router.get('/getBrands', async (req, res) => {
 //GET /getProducts get all products for brand..
 router.get('/getProducts', async (req, res) => {
 
-    let brandId = req.query.brandId;
+    let brand = req.query.brand;
     try {
-        const products = await Product.find({ brand: brandId }).select("-isDeleted -brandId");
+        const products = await Product.find({ brand: brand });//.select("-isDeleted -brandId");
         res.json(products);
     } catch (error) {
         res.json({ message: error });
@@ -89,17 +91,16 @@ router.get('/getProducts', async (req, res) => {
 });
 
 
+
 //POST /createBrand get brand from insert Id and return brand object with count of products..
-router.post('/createBrand', async (req, res) => {
+router.post('/createBrand', authVerification, async (req, res) => {
 
-    // const token = req.header('auth-token');
-    // const userId = await parseJwt(token);
-
-    UserBrand.create({
-        brandId: req.body.brandId,
-        productsId: req.body.productsId,
-        userId: req.body.userId,
-        isActive: req.body.isActive
+    const token = req.header('auth-token');
+    const userId = await parseJwt(token);
+    await UserBrand.create({
+        brand: req.body.brand,
+        products: req.body.products,
+        profile: userId.id
     });
     try {
         const userbrands = await UserBrand.save();

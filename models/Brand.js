@@ -11,7 +11,7 @@ const brandSchema = new mongoose.Schema({
       type: Boolean,
       default: false
    },
-   cuisineId: {
+   cuisine: {
       type: mongoose.Schema.Types.ObjectId, ref: 'Cuisine'
    }
 }, {
