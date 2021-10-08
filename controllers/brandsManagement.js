@@ -99,13 +99,12 @@ router.get('/getProducts', async (req, res) => {
 
 
 //POST /createBrand get brand from insert Id and return brand object with count of products..
-router.post('/createBrand', authVerification, async (req, res) => {
+router.post('/createBrand', async (req, res) => {
 
       const token = req.header('auth-token');
-      console.log(token);
       const filterId = await parseJwt(token);
-       const userId = filterId.id;
-       console.log(userId);
+      const userId = filterId.id;
+       
 
     const users = await UserBrand.create({
         profile: userId,
