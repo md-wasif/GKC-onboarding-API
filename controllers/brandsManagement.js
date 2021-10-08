@@ -39,14 +39,14 @@ router.get('/getAllBrands', async (req, res) => {
                 From: "brand",
                 localField: "brand",
                 foreignField: "_id",
-                as: "brand"
+                as: "brands"
             }
         }, {
-            $unwind: "brand"
+            $unwind: "brands"
         }
         ]);
 
-        const brands = await brand.find({});
+        const brands = await brands.find({});
         res.json(brands);
     } catch (error) {
         res.json({ message: error });
@@ -68,9 +68,9 @@ router.get('/getCuisines', async (req, res) => {
 //GET /getBrands get all brands for cuisine..
 router.get('/getBrands', async (req, res) => {
 
-    let cuisine = req.query.cuisine;
+    var cuisine = req.query.cuisine;
     try {
-        const brands = await Brand.find({ cuisine: cuisine }).select("-isDeleted -cuisineId");
+        const brands = await Brand.find({ cuisine: cuisine }).select("-isDeleted -cuisine");
         res.json(brands);
     } catch (error) {
         res.json({ message: error });
@@ -78,12 +78,17 @@ router.get('/getBrands', async (req, res) => {
 });
 
 
+//var ObjectId = require('mongodb').ObjectId; 
+// var id = req.params.gonderi_id;       
+// var o_id = new ObjectId(id);
+// db.test.find({_id:o_id})
+
 //GET /getProducts get all products for brand..
 router.get('/getProducts', async (req, res) => {
 
-    let brand = req.query.brand;
+    var brand = req.query.brand;
     try {
-        const products = await Product.find({ brand: brand });//.select("-isDeleted -brandId");
+        const products = await Product.find({ brand: brand}).select("-isDeleted -brand");
         res.json(products);
     } catch (error) {
         res.json({ message: error });
