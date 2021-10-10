@@ -16,13 +16,12 @@ const parseJwt = async (token) => {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
 
-    console.log(jsonPayload);
+    //console.log(jsonPayload);
     return JSON.parse(jsonPayload);
 };
 
 
-//UserId: "615d97f5204f20834f16f6e1"
-//BrandId: "615ee70c82b3b22d6c191fba"
+
 //GET /getAllBrands get all brands for user...
 router.get('/getAllBrands', async (req, res) => {
 
@@ -116,6 +115,71 @@ router.post('/createBrand', async (req, res) => {
     }
 });
 
+
+
+router.get('/getAllBrands/:id', async (req, res) => {
+
+    try {
+        const getallbrand = await UserBrand.findById(req.params.id);
+
+        res.json(getallbrand);
+    } catch (error) {
+        res.json({ message: error });
+    }
+});
+
+
+
+//GET /viewBrand get branda and products from userBrand.
+router.get('/viewBrand', async (req, res) => {
+
+    var userBrandId = mongoose.Types.ObjectId(req.query.userBrand);
+    var userbrands;
+    try {
+
+        userbrands = await UserBrand.aggregate([{
+            $match: { _id: userBrandId }
+        },
+        {
+            $unwind: "$products"
+        },
+        {
+            $lookup: {
+                from: "products",
+                localField: "products",
+                foreignField: "_id",
+                as: "product"
+            }
+        }, {
+            $unwind: "$product"
+        }
+        ])
+        res.json(userbrands);
+    } catch (error) {
+        res.json({ message: error });
+    }
+});
+
+
+
+//UPDATE /editBrand  update userbrand...
+// router.put('/editBrand', async (req, res) => {
+
+//     var userbrandId = mongoose.Types.ObjectId(req.query.userBrand);
+//     //var productId = mongoose.Types.ObjectId(req.query.product);
+//     //var editbrand;
+//     try{
+//          await UserBrand.updateOne({
+//              _id: userbrandId}, //mongoose.Types.ObjectId(req.query.userBrand)},
+//              req.body
+//          );
+//          const geteditbrand = await UserBrand.findOne({});
+//          res.json(geteditbrand);
+//       //console.log(editBrand);
+//     }catch(error){
+//         res.json({message: error});
+//     }
+// });
 
 
 module.exports = router;
