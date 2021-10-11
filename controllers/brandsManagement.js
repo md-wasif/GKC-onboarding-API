@@ -6,6 +6,7 @@ const Cuisine = require('../models/Cuisine');
 const Product = require('../models/Product');
 const UserBrand = require('../models/UserBrand');
 const authVerification = require('../routes/verifyToken');
+const { ObjectId } = require('bson');
 
 
 
@@ -166,12 +167,12 @@ router.get('/viewBrand', async (req, res) => {
         }
         ]);
         let products = []
-      userbrands.forEach((item)=>{
-        products.push(item.product)
-    })
+        userbrands.forEach((item) => {
+            products.push(item.product)
+        })
 
-      userbrands[0].product = products
-      userbrands.splice(1)
+        userbrands[0].product = products
+        userbrands.splice(1)
 
         //console.log(products);
         res.json(userbrands);
@@ -184,34 +185,22 @@ router.get('/viewBrand', async (req, res) => {
 
 
 //UPDATE /editBrand  update userbrand...
- router.put('/editBrand', async (req, res) => {
+router.put('/editBrand', async (req, res) => {
 
-     var userbrandId = mongoose.Types.ObjectId(req.query.userBrand);
-//     //var productId = mongoose.Types.ObjectId(req.query.product);
-//     //var editbrand;
-      var geteditbrand;
-     try{
-          await UserBrand.aggregate({
-                $lookup: {
-                    from: "products",
-                    localField: "products",
-                    foreignField: "_id",
-                    as: "product"
-                }
-            }, {
-                $unwind: "$product"
-          })
-          geteditbrand = await UserBrand.updateOne({
-            _id: userbrandId}, //mongoose.Types.ObjectId(req.query.userBrand)},
-             req.body
-         )
-          //const geteditbrand = await UserBrand.findOne({});
-          res.json(geteditbrand);
-          console.log(geteditbrand);
-     }catch(error){
-         res.json({message: error});
-     }
- });
+    var userbrandId = mongoose.Types.ObjectId(req.query.userBrand);
+    var geteditbrand;
+    try {
+
+        geteditbrand = await UserBrand.updateOne({
+            _id: userbrandId
+        },
+            { $set: { $products: req.body } }
+        )
+        res.json(geteditbrand);
+    } catch (error) {
+        res.json({ message: error });
+    }
+});
 
 
 module.exports = router;
