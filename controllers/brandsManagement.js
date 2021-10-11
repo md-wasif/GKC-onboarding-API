@@ -163,9 +163,9 @@ router.get('/viewBrand', async (req, res) => {
       userbrands[0].product = products
       userbrands.splice(1)
 
-        console.log(products);
-        //res.json(userbrands);
-        res.json(products);
+        //console.log(products);
+        res.json(userbrands);
+        //res.json(products);
     } catch (error) {
         res.json({ message: error });
     }
