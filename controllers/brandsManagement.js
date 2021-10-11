@@ -122,6 +122,7 @@ router.post('/createBrand', async (req, res) => {
 router.get('/viewBrand', async (req, res) => {
 
     var userBrandId = mongoose.Types.ObjectId(req.query.userBrand);
+
     console.log(userBrandId);
     var userbrands;
     try {
@@ -189,40 +190,27 @@ router.get('/viewBrand', async (req, res) => {
 // });
 
 
-router.put('/deactiveUser', async (req, res) => {
+router.put('/toggleBrand', async (req, res) => {
 
-    var userinfo_id = mongoose.Types.ObjectId(req.query.userId);
-    try{
-     await UserBrand.updateOne({_id: userinfo_id}, 
-        { $set: { "isActive": false }}
-    );
-    const getdeactiveUserbrand = await UserBrand.findById(userinfo_id);
-    res.json(getdeactiveUserbrand);
-    }catch(error){
-        res.json({message: error});
+    var userinfo_id = mongoose.Types.ObjectId(req.query.userBrandId);
+
+    try {
+        const getUser = req.body.isActive;
+        await UserBrand.updateOne({ _id: userinfo_id },
+            { $set: { "isActive": getUser } }
+        );
+        const getdeactiveUserbrand = await UserBrand.findById(userinfo_id);
+        res.json(getdeactiveUserbrand);
+    } catch (error) {
+        res.json({ message: error });
     }
 });
 
-
-
-router.put('/activeUser', async (req, res) => {
-
-    var userinfo_id = mongoose.Types.ObjectId(req.query.userId);
-    try{
-     await UserBrand.updateOne({_id: userinfo_id}, 
-        { $set: { "isActive": true }}
-    );
-    const getactiveUserbrand = await UserBrand.findById(userinfo_id);
-    res.json(getactiveUserbrand);
-    }catch(error){
-        res.json({message: error});
-    }
-});
 
 
 exports.deleteUserinfo = function (req, res, next) {
-   
-  }
+
+}
 
 
 module.exports = router;
