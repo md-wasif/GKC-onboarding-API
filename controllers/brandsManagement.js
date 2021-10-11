@@ -153,7 +153,17 @@ router.get('/viewBrand', async (req, res) => {
             }
         }, {
             $unwind: "$product"
-        } 
+        },
+        {
+            $lookup: {
+                from: "brands",
+                localField: "brand",
+                foreignField: "_id",
+                as: "brand"
+            }
+        }, {
+            $unwind: "$brand"
+        }
         ]);
         let products = []
       userbrands.forEach((item)=>{
