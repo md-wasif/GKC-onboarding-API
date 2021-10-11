@@ -153,19 +153,19 @@ router.get('/viewBrand', async (req, res) => {
             }
         }, {
             $unwind: "$product"
-        },{
-            $lookup: {
-                from: "brands",
-                localField: "product.brand",
-                foreignField: "_id",
-                as: "brand"
-            }
-        }, {
-            $unwind: "$brand"
-        }
+        } 
         ]);
-        console.log(userbrands);
-        res.json(userbrands);
+        let products = []
+      userbrands.forEach((item)=>{
+        products.push(item.product)
+    })
+
+      userbrands[0].product = products
+      userbrands.splice(1)
+
+        console.log(products);
+        //res.json(userbrands);
+        res.json(products);
     } catch (error) {
         res.json({ message: error });
     }
@@ -174,23 +174,34 @@ router.get('/viewBrand', async (req, res) => {
 
 
 //UPDATE /editBrand  update userbrand...
-// router.put('/editBrand', async (req, res) => {
+ router.put('/editBrand', async (req, res) => {
 
-//     var userbrandId = mongoose.Types.ObjectId(req.query.userBrand);
+     var userbrandId = mongoose.Types.ObjectId(req.query.userBrand);
 //     //var productId = mongoose.Types.ObjectId(req.query.product);
 //     //var editbrand;
-//     try{
-//          await UserBrand.updateOne({
-//              _id: userbrandId}, //mongoose.Types.ObjectId(req.query.userBrand)},
-//              req.body
-//          );
-//          const geteditbrand = await UserBrand.findOne({});
-//          res.json(geteditbrand);
-//       //console.log(editBrand);
-//     }catch(error){
-//         res.json({message: error});
-//     }
-// });
+      var geteditbrand;
+     try{
+          await UserBrand.aggregate({
+                $lookup: {
+                    from: "products",
+                    localField: "products",
+                    foreignField: "_id",
+                    as: "product"
+                }
+            }, {
+                $unwind: "$product"
+          })
+          geteditbrand = await UserBrand.updateOne({
+            _id: userbrandId}, //mongoose.Types.ObjectId(req.query.userBrand)},
+             req.body
+         )
+          //const geteditbrand = await UserBrand.findOne({});
+          res.json(geteditbrand);
+          console.log(geteditbrand);
+     }catch(error){
+         res.json({message: error});
+     }
+ });
 
 
 module.exports = router;
