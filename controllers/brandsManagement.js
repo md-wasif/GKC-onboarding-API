@@ -6,7 +6,6 @@ const Cuisine = require('../models/Cuisine');
 const Product = require('../models/Product');
 const UserBrand = require('../models/UserBrand');
 const authVerification = require('../routes/verifyToken');
-const { ObjectId } = require('bson');
 
 
 
@@ -118,18 +117,6 @@ router.post('/createBrand', async (req, res) => {
 
 
 
-router.get('/getAllBrands/:id', async (req, res) => {
-
-    try {
-        const getallbrand = await UserBrand.findById(req.params.id);
-
-        res.json(getallbrand);
-    } catch (error) {
-        res.json({ message: error });
-    }
-});
-
-
 
 //GET /viewBrand get brand and products from userBrand.
 router.get('/viewBrand', async (req, res) => {
@@ -185,22 +172,57 @@ router.get('/viewBrand', async (req, res) => {
 
 
 //UPDATE /editBrand  update userbrand...
-router.put('/editBrand', async (req, res) => {
+// router.put('/editBrand', async (req, res) => {
 
-    var userbrandId = mongoose.Types.ObjectId(req.query.userBrand);
-    var geteditbrand;
-    try {
+//   //  var userbrandId = mongoose.Types.ObjectId(req.query.userBrand);
+//   //  console.log(userbrandId);
+//     try {
+//            await UserBrand.updateOne({ _id: "6163e278f715319e2411554f" },
+//             { $set: { "brand": mongoose.Types.ObjectId("Watch") } }
+//         )
+//         const getneweditBrand = await UserBrand.findById("6163e278f715319e2411554f");
+//         console.log(getneweditBrand);
+//         //res.json(getneweditBrand);
+//     } catch (error) {
+//         res.json({ message: error });
+//     }
+// });
 
-        geteditbrand = await UserBrand.updateOne({
-            _id: userbrandId
-        },
-            { $set: { $products: req.body } }
-        )
-        res.json(geteditbrand);
-    } catch (error) {
-        res.json({ message: error });
+
+router.put('/deactiveUser', async (req, res) => {
+
+    var userinfo_id = mongoose.Types.ObjectId(req.query.userId);
+    try{
+     await UserBrand.updateOne({_id: userinfo_id}, 
+        { $set: { "isActive": false }}
+    );
+    const getdeactiveUserbrand = await UserBrand.findById(userinfo_id);
+    res.json(getdeactiveUserbrand);
+    }catch(error){
+        res.json({message: error});
     }
 });
+
+
+
+router.put('/activeUser', async (req, res) => {
+
+    var userinfo_id = mongoose.Types.ObjectId(req.query.userId);
+    try{
+     await UserBrand.updateOne({_id: userinfo_id}, 
+        { $set: { "isActive": true }}
+    );
+    const getactiveUserbrand = await UserBrand.findById(userinfo_id);
+    res.json(getactiveUserbrand);
+    }catch(error){
+        res.json({message: error});
+    }
+});
+
+
+exports.deleteUserinfo = function (req, res, next) {
+   
+  }
 
 
 module.exports = router;
