@@ -130,10 +130,11 @@ router.get('/getAllBrands/:id', async (req, res) => {
 
 
 
-//GET /viewBrand get branda and products from userBrand.
+//GET /viewBrand get brand and products from userBrand.
 router.get('/viewBrand', async (req, res) => {
 
     var userBrandId = mongoose.Types.ObjectId(req.query.userBrand);
+    console.log(userBrandId);
     var userbrands;
     try {
 
@@ -152,8 +153,18 @@ router.get('/viewBrand', async (req, res) => {
             }
         }, {
             $unwind: "$product"
+        },{
+            $lookup: {
+                from: "brands",
+                localField: "product.brand",
+                foreignField: "_id",
+                as: "brand"
+            }
+        }, {
+            $unwind: "$brand"
         }
-        ])
+        ]);
+        console.log(userbrands);
         res.json(userbrands);
     } catch (error) {
         res.json({ message: error });
