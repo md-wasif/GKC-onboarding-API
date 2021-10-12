@@ -12,13 +12,14 @@ const userBrandSchema = new mongoose.Schema({
     default: true
   },
   profile: {
-    type: mongoose.Schema.Types.ObjectId, ref: 'Profile'
+    type: mongoose.Schema.Types.ObjectId, ref: 'User'
   },
   brand: {
     type: mongoose.Schema.Types.ObjectId, ref: 'Brand'
   },
   products: {
     type: Array,
+    default: []
   }
 }, {
   timestamps: true

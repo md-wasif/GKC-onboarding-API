@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
+
+  profile: {
+    type: mongoose.Schema.Types.ObjectId, ref: 'Profile'
+  },
   firstName: {
     type: String,
     required: true
@@ -26,7 +30,7 @@ const userSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
-  }
+  },
 }, {
   timestamps: true
 });

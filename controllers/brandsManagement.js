@@ -27,7 +27,6 @@ router.get('/getAllBrands', async (req, res) => {
 
     const token = req.header('auth-token');
     const filterId = await parseJwt(token);
-    //const userId = ObjectId(filterId.id);
     const userId = mongoose.Types.ObjectId(filterId.id)
     var userBrands;
     try {
@@ -45,7 +44,6 @@ router.get('/getAllBrands', async (req, res) => {
         }, {
             $unwind: "$brand"
         }]);
-        //const userBrands = await UserBrand.find({});
         res.json(userBrands);
     } catch (error) {
         res.json({ message: error });
@@ -101,15 +99,15 @@ router.post('/createBrand', async (req, res) => {
     const filterId = await parseJwt(token);
     const userId = filterId.id;
 
-    const users = await UserBrand.create({
+    const user = await UserBrand.create({
         profile: userId,
         brand: req.body.brand,
         products: req.body.products,
     });
     try {
-        const userbrands = await UserBrand.save();
-        console.log(userbrands);
-        res.json(userbrands);
+        const userbrands = await user.save();
+        //console.log(userbrands);
+        res.json({user: user._id});
     } catch (error) {
         res.json({ message: error });
     }
@@ -122,7 +120,6 @@ router.post('/createBrand', async (req, res) => {
 router.get('/viewBrand', async (req, res) => {
 
     var userBrandId = mongoose.Types.ObjectId(req.query.userBrand);
-
     console.log(userBrandId);
     var userbrands;
     try {
@@ -158,13 +155,10 @@ router.get('/viewBrand', async (req, res) => {
         userbrands.forEach((item) => {
             products.push(item.product)
         })
-
+        console.log(userbrands);
         userbrands[0].product = products
-        userbrands.splice(1)
-
-        //console.log(products);
+        userbrands.splice(1);
         res.json(userbrands);
-        //res.json(products);
     } catch (error) {
         res.json({ message: error });
     }
@@ -173,11 +167,9 @@ router.get('/viewBrand', async (req, res) => {
 
 
 //UPDATE /editBrand  update userbrand...
- router.post('/editBrand', async (req, res) => {
+ router.put('/editBrand', async (req, res) => {
 
     var userbrandId = mongoose.Types.ObjectId(req.query.userBrand);
-
-   // console.log("products[0].name");
     try {
         const getProducts = req.body.products;
            await UserBrand.updateOne({ _id: userbrandId },
@@ -209,10 +201,6 @@ router.put('/toggleBrand', async (req, res) => {
 });
 
 
-
-exports.deleteUserinfo = function (req, res, next) {
-
-}
 
 
 module.exports = router;
