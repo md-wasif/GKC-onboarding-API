@@ -13,8 +13,6 @@ router.post('/createUser', async (req, res) => {
         lastName: req.body.lastName,
         email: req.body.email,
         password: req.body.password,
-        isDeleted: req.body.isDeleted,
-        isActive: req.body.isActive,
     });
     try {
         const savedUser = await User.save();
@@ -67,7 +65,25 @@ router.get('/getUsers', async (req, res) => {
     } catch (error) {
         res.json({ message: error });
     }
-})
+});
+
+
+  
+router.put('/deactivateUser', async (req, res) => {
+  
+      var userinfo_id = mongose.Types.ObjectId(req.query.userId);
+  
+      try {
+          const getUser = req.body.isActive;
+          await UserBrand.updateOne({ _id: userinfo_id },
+              { $set: { "isActive": getUser } }
+          );
+          const getdeactiveUser = await UserBrand.findById(userinfo_id);
+          res.json(getdeactiveUser);
+      } catch (error) {
+          res.json({ message: error });
+      }
+  });
 
 
 module.exports = router;

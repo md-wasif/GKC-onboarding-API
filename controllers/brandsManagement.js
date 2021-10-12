@@ -173,21 +173,23 @@ router.get('/viewBrand', async (req, res) => {
 
 
 //UPDATE /editBrand  update userbrand...
-// router.put('/editBrand', async (req, res) => {
+ router.post('/editBrand', async (req, res) => {
 
-//   //  var userbrandId = mongoose.Types.ObjectId(req.query.userBrand);
-//   //  console.log(userbrandId);
-//     try {
-//            await UserBrand.updateOne({ _id: "6163e278f715319e2411554f" },
-//             { $set: { "brand": mongoose.Types.ObjectId("Watch") } }
-//         )
-//         const getneweditBrand = await UserBrand.findById("6163e278f715319e2411554f");
-//         console.log(getneweditBrand);
-//         //res.json(getneweditBrand);
-//     } catch (error) {
-//         res.json({ message: error });
-//     }
-// });
+    var userbrandId = mongoose.Types.ObjectId(req.query.userBrand);
+
+   // console.log("products[0].name");
+    try {
+        const getProducts = req.body.products;
+           await UserBrand.updateOne({ _id: userbrandId },
+            { $set: { "products": getProducts } }
+        );
+        const getneweditBrand = await UserBrand.findById(userbrandId);
+        console.log(getneweditBrand);
+        res.json(getneweditBrand);
+    } catch (error) {
+        res.json({ message: error });
+    }
+});
 
 
 router.put('/toggleBrand', async (req, res) => {
