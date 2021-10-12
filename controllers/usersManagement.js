@@ -8,15 +8,15 @@ const User = require('../models/User');
 //Create User Management..
 router.post('/createUser', async (req, res) => {
 
-    User.create({
+    const user = new User({
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
         password: req.body.password,
     });
     try {
-        const savedUser = await User.save();
-        res.json(savedUser);
+        const savedUser = await user.save();
+        res.json({user: user._id});
     } catch (error) {
         res.json({ message: error });
     }
