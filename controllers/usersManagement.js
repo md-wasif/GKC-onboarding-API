@@ -35,7 +35,7 @@ router.post('/createUser', async (req, res) => {
     });
     try {
         const savedUser = await user.save();
-        res.json({ user: user._id });
+        res.json(savedUser);
     } catch (error) {
         res.json({ message: error });
     }
@@ -94,10 +94,10 @@ router.put('/deactivateUser', async (req, res) => {
 
     try {
         const getUser = req.body.isActive;
-        await UserBrand.updateOne({ _id: userinfo_id },
+        await User.updateOne({ _id: userinfo_id },
             { $set: { "isActive": getUser } }
         );
-        const getdeactiveUser = await UserBrand.findById(userinfo_id);
+        const getdeactiveUser = await User.findById(userinfo_id);
         res.json(getdeactiveUser);
     } catch (error) {
         res.json({ message: error });
