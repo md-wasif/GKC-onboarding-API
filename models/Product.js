@@ -12,7 +12,12 @@ const productSchema = new mongoose.Schema({
       required: true
    },
    description: {
-      type: String
+      type: String,
+      required: true
+   },
+   img: { 
+      data: Buffer, 
+      contentType: String 
    },
    isDeleted: {
       type: Boolean,

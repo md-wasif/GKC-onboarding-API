@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const atob = require('atob');
+const upload = require("../middleware/upload");
 const router = require('express').Router();
 const Brand = require('../models/Brand');
 const Cuisine = require('../models/Cuisine');
@@ -91,6 +92,29 @@ router.get('/getProducts', async (req, res) => {
 });
 
 
+router.post('/createProduct', upload.single("file"), async (req, res) => {
+
+    const brandId = mongoose.Types.ObjectId(req.query.brand);
+    const imgUrl = `http://localhost:5000/${req.file.filename}`;
+    console.log(brandId);
+    console.log(imgUrl);
+    const newProducts = await Product.create ({ 
+        brand: brandId,
+        productName: req.body.name,
+        productPrice: req.body.price,
+        description: req.body.description,
+        img: req.body.imgUrl
+    });
+    try{
+         const productDetails = await newProducts.save();
+         console.log(productDetails);
+         res.json(productDetails);
+    }catch(error){
+        res.json({message: error});
+    }
+});
+
+
 
 //POST /createBrand get brand from insert Id and return brand object with count of products..
 router.post('/createBrand', async (req, res) => {
@@ -150,7 +174,7 @@ router.get('/viewBrand', async (req, res) => {
         }, {
             $unwind: "$brand"
         }
-        ]);
+         ]);
         let products = []
         userbrands.forEach((item) => {
             products.push(item.product)
@@ -158,7 +182,7 @@ router.get('/viewBrand', async (req, res) => {
         console.log(userbrands);
         userbrands[0].product = products
         userbrands.splice(1);
-        res.json(userbrands);
+       res.json(userbrands);
     } catch (error) {
         res.json({ message: error });
     }
