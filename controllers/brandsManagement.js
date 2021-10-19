@@ -99,15 +99,15 @@ router.post('/createBrand', async (req, res) => {
     const filterId = await parseJwt(token);
     const userId = filterId.id;
 
-    const user = await UserBrand.create({
-        profile: userId,
+    const newUser = await UserBrand.create({
+        user: userId,
         brand: req.body.brand,
         products: req.body.products,
     });
     try {
-        const userbrands = await user.save();
-        //console.log(userbrands);
-        res.json({user: user._id});
+        const userbrands = await newUser.save();
+        console.log(userbrands);
+        res.json({user: newUser._id});
     } catch (error) {
         res.json({ message: error });
     }
