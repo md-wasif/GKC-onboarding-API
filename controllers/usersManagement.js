@@ -57,24 +57,27 @@ router.put('/editUser/:id', async (req, res) => {
 
 //Get User Management..
 router.get('/getUser', async (req, res) => {
-    const userinfo_Id = mongoose.Types.ObjectId(req.body.userId);
+    const userinfo_Id = mongoose.Types.ObjectId(req.query.userId);
+    console.log(userinfo_Id);
     var getuser;
     try {
-        getuser = await UserBrand.aggregate({
+        getuser = await UserBrand.aggregate([{
             $match: { user: userinfo_Id }
-        })
-        // },{
-        //     $lookup: {
-        //         from: "users",
-        //         localField: "_id",
-        //         foreignField: "user",
-        //         as: "users"
-        //         }
-        //     }
-        //]);
-        console.log(getuser);
-        //const user = await User.findById(req.params.id);
-        //res.json(user);
+       // }])
+        },{
+            $lookup: {
+                from: "brands",
+                localField: "brand",
+                foreignField: "_id",
+                as: "brands"
+                }
+            },{
+                $unwind: "$brands"
+            },
+        ]);
+        //console.log(getuser);
+        //const user = await User.findById(req.params.userinfo_Id);
+        res.json(getuser);
     } catch (error) {
         res.json({ message: error });
     }
