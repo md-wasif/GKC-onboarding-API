@@ -8,7 +8,7 @@ const config = require('../token'); //get config file.
 
 
 //Register
-router.post('/SignUp', async (req, res) => {
+router.post('/register', async (req, res) => {
 
     //LETS VALIDATE THE DATA BEFORE WE A USER.
     const { error } = registerValidation(req.body);
