@@ -32,7 +32,7 @@ router.get('/getAllBrands', async (req, res) => {
     try {
 
         userBrands = await UserBrand.aggregate([{
-            $match: { profile: userId }
+            $match: { user: userId }
         },
         {
             $lookup: {
