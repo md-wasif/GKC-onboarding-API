@@ -1,4 +1,4 @@
-const mongose = require('mongoose');
+const mongoose = require('mongoose');
 const router = require('express').Router();
 const atob = require('atob');
 
@@ -6,6 +6,7 @@ const atob = require('atob');
 
 const User = require('../models/User');
 const UserBrand = require('../models/UserBrand');
+const { ObjectId } = require('bson');
 
 
 const parseJwt = async (token) => {
@@ -55,10 +56,25 @@ router.put('/editUser/:id', async (req, res) => {
 
 
 //Get User Management..
-router.get('/getUser/:id', async (req, res) => {
+router.get('/getUser', async (req, res) => {
+    const userinfo_Id = mongoose.Types.ObjectId(req.body.userId);
+    var getuser;
     try {
-        const user = await User.findById(req.params.id);
-        res.json(user);
+        getuser = await UserBrand.aggregate({
+            $match: { user: userinfo_Id }
+        })
+        // },{
+        //     $lookup: {
+        //         from: "users",
+        //         localField: "_id",
+        //         foreignField: "user",
+        //         as: "users"
+        //         }
+        //     }
+        //]);
+        console.log(getuser);
+        //const user = await User.findById(req.params.id);
+        //res.json(user);
     } catch (error) {
         res.json({ message: error });
     }

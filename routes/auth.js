@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const User = require('../models/Profile');
+const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const bcrypt = require('bcrypt');
@@ -8,7 +8,7 @@ const config = require('../token'); //get config file.
 
 
 //Register
-router.post('/register', async (req, res) => {
+router.post('/SignUp', async (req, res) => {
 
     //LETS VALIDATE THE DATA BEFORE WE A USER.
     const { error } = registerValidation(req.body);

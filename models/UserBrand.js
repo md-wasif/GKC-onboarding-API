@@ -11,7 +11,7 @@ const userBrandSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
-  profile: {
+  user: {
     type: mongoose.Schema.Types.ObjectId, ref: 'User'
   },
   brand: {
