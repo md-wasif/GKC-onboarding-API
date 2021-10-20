@@ -73,10 +73,20 @@ router.get('/getUser', async (req, res) => {
                 }
             },{
                 $unwind: "$brands"
-            },
+            },{
+                $lookup: {
+                    from: "users",
+                    localField: "user",
+                    foreignField: "_id",
+                    as: "users"
+                    }
+                },{
+                    $unwind: "$users"
+                },
+            
         ]);
         //console.log(getuser);
-        //const user = await User.findById(req.params.userinfo_Id);
+        //const userdetails = await User.findOne({_id: getuser.user_id});
         res.json(getuser);
     } catch (error) {
         res.json({ message: error });
