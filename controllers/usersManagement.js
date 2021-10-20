@@ -6,7 +6,6 @@ const atob = require('atob');
 
 const User = require('../models/User');
 const UserBrand = require('../models/UserBrand');
-const { ObjectId } = require('bson');
 
 
 const parseJwt = async (token) => {
@@ -26,7 +25,7 @@ router.post('/createUser', async (req, res) => {
     const token = req.header('auth-token');
     const filterId = await parseJwt(token);
     const userId = filterId.id;
-    
+
     //Hash Password
     // const salt = await bcrypt.genSalt(10);
     // const hashedPassword = await bcrypt.hash(req.body.password, salt);
@@ -83,9 +82,9 @@ router.get('/getUser', async (req, res) => {
         ]);
         let brandsArr = [];
         checkBrand.forEach((brand) => {
-               brandsArr = brandsArr.concat(brand.brands);
+            brandsArr = brandsArr.concat(brand.brands);
         })
-         getuserDetails._doc.brands = brandsArr;
+        getuserDetails._doc.brands = brandsArr;
         //const userdetails = await User.findOne({_id: getuser.user_id});
         res.json(getuserDetails);
     } catch (error) {
@@ -107,9 +106,40 @@ router.delete('/deleteUser/:id', async (req, res) => {
 
 
 router.get('/getUsers', async (req, res) => {
+    let users;
+    let getBrands;
+    let getallusers = [];
     try {
-        const users = await User.find();
-        res.json(users);
+        users = await User.find();
+     
+        getallusers = users.map(async(user) => {
+            getBrands = await UserBrand.aggregate([{
+                $match: { user: user._id }
+            }, {
+                $lookup: {
+                    from: "brands",
+                    localField: "brand",
+                    foreignField: "_id",
+                    as: "brands"
+                }
+            }, {
+                $unwind: "$brands"
+            },
+            ])
+            let brandsArrall = [];
+            getBrands.forEach((brand) => {
+                brandsArrall = brandsArrall.concat(brand.brands);
+            })
+            user._doc.brands = brandsArrall;
+
+            //console.log(user);
+            return user;
+           // getallusers = {...getallusers, ...user};
+            //res.send(user);
+            //console.log(getallusers);
+        });
+         console.log(getallusers);
+         res.json(getallusers);
     } catch (error) {
         res.json({ message: error });
     }

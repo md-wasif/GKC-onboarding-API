@@ -17,10 +17,8 @@ const userBrandSchema = new mongoose.Schema({
   brand: {
     type: mongoose.Schema.Types.ObjectId, ref: 'Brand'
   },
-  products: {
-    type: Array,
-    default: []
-  }
+  products: 
+    [{type: mongoose.Schema.Types.ObjectId, ref: 'Product'}],
 }, {
   timestamps: true
 });
