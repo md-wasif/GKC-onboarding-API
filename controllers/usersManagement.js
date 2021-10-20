@@ -60,34 +60,32 @@ router.get('/getUser', async (req, res) => {
     const userinfo_Id = mongoose.Types.ObjectId(req.query.userId);
     console.log(userinfo_Id);
     var getuser;
+    var checkBrand;
     try {
-        getuser = await UserBrand.aggregate([{
+
+        getuser = await User.findOne({ _id: userinfo_Id });
+        checkBrand = await UserBrand.aggregate([{
             $match: { user: userinfo_Id }
-       // }])
-        },{
+        }, {
             $lookup: {
                 from: "brands",
                 localField: "brand",
                 foreignField: "_id",
                 as: "brands"
-                }
-            },{
-                $unwind: "$brands"
-            },{
-                $lookup: {
-                    from: "users",
-                    localField: "user",
-                    foreignField: "_id",
-                    as: "users"
-                    }
-                },{
-                    $unwind: "$users"
-                },
-            
+            }
+        }, {
+            $unwind: "$brands"
+        },
         ]);
-        //console.log(getuser);
+        let brandsArr = []
+        brandsArr.push(getuser);
+        if (checkBrand.brand != 0) {
+            checkBrand.forEach((item) => {
+                brandsArr.push(item.brands)
+            })
+        }
         //const userdetails = await User.findOne({_id: getuser.user_id});
-        res.json(getuser);
+        res.json(brandsArr);
     } catch (error) {
         res.json({ message: error });
     }
