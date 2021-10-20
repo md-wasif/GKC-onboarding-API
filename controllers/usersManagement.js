@@ -119,7 +119,7 @@ router.get('/getUsers', async (req, res) => {
 
 router.put('/deactivateUser', async (req, res) => {
 
-    var userinfo_id = mongose.Types.ObjectId(req.query.userId);
+    var userinfo_id = mongoose.Types.ObjectId(req.query.userId);
 
     try {
         const getUser = req.body.isActive;
