@@ -112,34 +112,34 @@ router.get('/getUsers', async (req, res) => {
     try {
         users = await User.find();
      
-        getallusers = users.map(async(user) => {
-            getBrands = await UserBrand.aggregate([{
-                $match: { user: user._id }
-            }, {
-                $lookup: {
-                    from: "brands",
-                    localField: "brand",
-                    foreignField: "_id",
-                    as: "brands"
-                }
-            }, {
-                $unwind: "$brands"
-            },
-            ])
-            let brandsArrall = [];
-            getBrands.forEach((brand) => {
-                brandsArrall = brandsArrall.concat(brand.brands);
-            })
-            user._doc.brands = brandsArrall;
+        // getallusers = users.map(async(user) => {
+        //     getBrands = await UserBrand.aggregate([{
+        //         $match: { user: user._id }
+        //     }, {
+        //         $lookup: {
+        //             from: "brands",
+        //             localField: "brand",
+        //             foreignField: "_id",
+        //             as: "brands"
+        //         }
+        //     }, {
+        //         $unwind: "$brands"
+        //     },
+        //     ])
+        //     let brandsArrall = [];
+        //     getBrands.forEach((brand) => {
+        //         brandsArrall = brandsArrall.concat(brand.brands);
+        //     })
+        //     user._doc.brands = brandsArrall;
 
-            //console.log(user);
-            return user;
-           // getallusers = {...getallusers, ...user};
-            //res.send(user);
-            //console.log(getallusers);
-        });
-         console.log(getallusers);
-         res.json(getallusers);
+        //     //console.log(user);
+        //     return user;
+        //    // getallusers = {...getallusers, ...user};
+        //     //res.send(user);
+        //     //console.log(getallusers);
+        // });
+        // console.log(getallusers);
+         res.json(users);
     } catch (error) {
         res.json({ message: error });
     }
