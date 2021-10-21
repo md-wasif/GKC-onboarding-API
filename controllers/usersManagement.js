@@ -137,6 +137,7 @@ router.get('/getUsers', async (req, res) => {
              firstName: 1, 
              lastName: 1,  
              email: 1, 
+             isActive: 1,
              brands: 1,
             }
         }
