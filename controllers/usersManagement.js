@@ -147,7 +147,7 @@ router.get('/getUsers', async (req, res) => {
 //         users.splice(1);
 //         const finalres = await User.find();
 //         console.log(finalres);
-        res.json({"code": "OK", "data": {users}});
+        res.json(users);
     } catch (error) {
         res.json({ message: error });
     }
