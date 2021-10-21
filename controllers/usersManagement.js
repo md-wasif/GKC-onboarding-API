@@ -128,8 +128,23 @@ router.get('/getUsers', async (req, res) => {
         }, {
             $unwind: "$brands"
         },
+        {
+            $project: {
+             firstName: 1, 
+             lastName: 1,  
+             email: 1, 
+             brands: 1,
+            }
+        }
 ])
-        //console.log(resArr);
+        let products = []
+        users.forEach((item) => {
+            products.push(item.brands)
+        })
+        //console.log(users[0].brands)
+        users[0].brands = products
+        users.splice(1);
+        //users.brands = brands
         res.json({"Code": "OK", "data": {users}});
     } catch (error) {
         res.json({ message: error });
