@@ -106,6 +106,7 @@ router.delete('/deleteUser/:id', async (req, res) => {
 
 
 router.get('/getUsers', async (req, res) => {
+    //let userdetails;
     let users;
     try {
         users = await User.find();
@@ -145,9 +146,9 @@ router.get('/getUsers', async (req, res) => {
 //         //console.log(users[0].brands)
 //         users[0].brands = products
 //         users.splice(1);
-//         const finalres = await User.find();
-//         console.log(finalres);
-        res.json(users);
+
+        //console.log(userdetails);
+        res.json({"code": "OK", "data": {users}});
     } catch (error) {
         res.json({ message: error });
     }

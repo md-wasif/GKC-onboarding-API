@@ -178,10 +178,11 @@ router.get('/viewBrand', async (req, res) => {
         userbrands.forEach((item) => {
             products.push(item.product)
         })
-        console.log(userbrands);
+       // console.log(userbrands);
         userbrands[0].product = products
         userbrands.splice(1);
-       res.json({"code": "OK", "data": {userbrands}});
+        const getuserbrands = userbrands[0];
+       res.json({"code": "OK", "data": {getuserbrands}});
     } catch (error) {
         res.json({ message: error });
     }
@@ -216,7 +217,7 @@ router.put('/toggleBrand', async (req, res) => {
             { $set: { "isActive": getUser } }
         );
         const getdeactiveUserbrand = await UserBrand.findById(userinfo_id);
-        res.json({"code": "OK", "data": {getdeactiveUserbrand}});
+        res.json({"code": "OK", "data":{getdeactiveUserbrand}});
     } catch (error) {
         res.json({ message: error });
     }
