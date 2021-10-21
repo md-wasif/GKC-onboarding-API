@@ -109,45 +109,48 @@ router.get('/getUsers', async (req, res) => {
     //let userdetails;
     let users;
     try {
-        users = await User.find();
-//         users = await User.aggregate([{
-//             $lookup: {
-//                 from: "userbrands",
-//                 localField: "_id",
-//                 foreignField: "user",
-//                 as: "userbrands"
-//             }
+       // users = await User.find();
+        users = await User.aggregate([{
+            $lookup: {
+                from: "userbrands",
+                localField: "_id",
+                foreignField: "user",
+                as: "userbrands"
+            }
+        },
 // }, {
 //             $unwind: "$userbrands"
 //         },
-//          {
-//             $lookup: {
-//                 from: "brands",
-//                 localField: "userbrands.brand",
-//                 foreignField: "_id",
-//                 as: "brands"
-//             }
-//         }, {
-//             $unwind: "$brands"
-//         },
-//         {
-//             $project: {
-//              firstName: 1, 
-//              lastName: 1,  
-//              email: 1, 
-//              brands: 1,
-//             }
-//         }
-// ])
-//         let products = []
-//         users.forEach((item) => {
-//             products.push(item.brands)
-//         })
-//         //console.log(users[0].brands)
-//         users[0].brands = products
-//         users.splice(1);
+         {
+            $lookup: {
+                from: "brands",
+                localField: "userbrands.brand",
+                foreignField: "_id",
+                as: "brands"
+            }
+        },
+        // }, {
+        //     $unwind: "$brands"
+        // },
+        {
+            $project: {
+             firstName: 1, 
+             lastName: 1,  
+             email: 1, 
+             brands: 1,
+            }
+        }
+])
+        // let products = []
+        // users.forEach((item) => {
+        //     products.push(item.brands)
+        // })
+        // //console.log(users[0].brands)
+        // users[0].brands = products
+        // users.splice(1);
 
         //console.log(userdetails);
+        //console.log(users[0]);
         res.json({"code": "OK", "data": {users}});
     } catch (error) {
         res.json({ message: error });
