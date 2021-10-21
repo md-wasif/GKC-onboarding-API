@@ -39,7 +39,7 @@ router.post('/createUser', async (req, res) => {
         password: req.body.password,
     });
     try {
-        //const savedUser = await user.save();
+        const savedUser = await user.save();
         res.json({"code": "OK", "message": "Create User Sussfully."});
     } catch (error) {
         res.json({ message: error });
