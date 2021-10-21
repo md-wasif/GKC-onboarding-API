@@ -45,7 +45,7 @@ router.get('/getAllBrands', async (req, res) => {
         }, {
             $unwind: "$brand"
         }]);
-        res.json(userBrands);
+        res.json({"code": "OK", "data": {userBrands}});
     } catch (error) {
         res.json({ message: error });
     }
@@ -58,7 +58,7 @@ router.get('/getCuisines', async (req, res) => {
 
     try {
         const cuisines = await Cuisine.find({}).select("-isDeleted");
-        res.json(cuisines);
+        res.json({"code": "OK", "data": {cuisines}});
     } catch (error) {
         res.json({ message: error });
     }
@@ -71,7 +71,7 @@ router.get('/getBrands', async (req, res) => {
     var cuisine = req.query.cuisine;
     try {
         const brands = await Brand.find({ cuisine: cuisine }).select("-isDeleted -cuisine");
-        res.json(brands);
+        res.json({"code": "OK", "data": {brands}});
     } catch (error) {
         res.json({ message: error });
     }
@@ -85,34 +85,34 @@ router.get('/getProducts', async (req, res) => {
     var brand = req.query.brand;
     try {
         const products = await Product.find({ brand: brand }).select("-isDeleted -brand");
-        res.json(products);
+        res.json({"code": "OK", "data": {products}});
     } catch (error) {
         res.json({ message: error });
     }
 });
 
 
-router.post('/createProduct', upload.single("file"), async (req, res) => {
+// router.post('/createProduct', upload.single("file"), async (req, res) => {
 
-    const brandId = mongoose.Types.ObjectId(req.query.brand);
-    const imgUrl = `http://localhost:5000/${req.file.filename}`;
-    console.log(brandId);
-    console.log(imgUrl);
-    const newProducts = await Product.create ({ 
-        brand: brandId,
-        productName: req.body.name,
-        productPrice: req.body.price,
-        description: req.body.description,
-        img: req.body.imgUrl
-    });
-    try{
-         const productDetails = await newProducts.save();
-         console.log(productDetails);
-         res.json(productDetails);
-    }catch(error){
-        res.json({message: error});
-    }
-});
+//     const brandId = mongoose.Types.ObjectId(req.query.brand);
+//     const imgUrl = `http://localhost:5000/${req.file.filename}`;
+//     console.log(brandId);
+//     console.log(imgUrl);
+//     const newProducts = await Product.create ({ 
+//         brand: brandId,
+//         productName: req.body.name,
+//         productPrice: req.body.price,
+//         description: req.body.description,
+//         img: req.body.imgUrl
+//     });
+//     try{
+//          const productDetails = await newProducts.save();
+//          console.log(productDetails);
+//          res.json(productDetails);
+//     }catch(error){
+//         res.json({message: error});
+//     }
+// });
 
 
 
@@ -131,7 +131,7 @@ router.post('/createBrand', async (req, res) => {
     try {
         const userbrands = await newUser.save();
         console.log(userbrands);
-        res.json({user: newUser._id});
+        res.json({"code": "OK", "data": {user: newUser._id}});
     } catch (error) {
         res.json({ message: error });
     }
@@ -144,7 +144,6 @@ router.post('/createBrand', async (req, res) => {
 router.get('/viewBrand', async (req, res) => {
 
     var userBrandId = mongoose.Types.ObjectId(req.query.userBrand);
-    console.log(userBrandId);
     var userbrands;
     try {
 
@@ -182,7 +181,7 @@ router.get('/viewBrand', async (req, res) => {
         console.log(userbrands);
         userbrands[0].product = products
         userbrands.splice(1);
-       res.json(userbrands);
+       res.json({"code": "OK", "data": {userbrands}});
     } catch (error) {
         res.json({ message: error });
     }
@@ -200,8 +199,7 @@ router.get('/viewBrand', async (req, res) => {
             { $set: { "products": getProducts } }
         );
         const getneweditBrand = await UserBrand.findById(userbrandId);
-        console.log(getneweditBrand);
-        res.json(getneweditBrand);
+        res.json({"code": "OK", "data": {getneweditBrand}});
     } catch (error) {
         res.json({ message: error });
     }
@@ -218,7 +216,7 @@ router.put('/toggleBrand', async (req, res) => {
             { $set: { "isActive": getUser } }
         );
         const getdeactiveUserbrand = await UserBrand.findById(userinfo_id);
-        res.json(getdeactiveUserbrand);
+        res.json({"code": "OK", "data": {getdeactiveUserbrand}});
     } catch (error) {
         res.json({ message: error });
     }

@@ -39,8 +39,8 @@ router.post('/createUser', async (req, res) => {
         password: req.body.password,
     });
     try {
-        const savedUser = await user.save();
-        res.json(savedUser);
+        //const savedUser = await user.save();
+        res.json({"code": "OK", "message": "Create User Sussfully."});
     } catch (error) {
         res.json({ message: error });
     }
@@ -52,7 +52,7 @@ router.post('/createUser', async (req, res) => {
 router.put('/editUser/:id', async (req, res) => {
     try {
         const updateuser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        res.json(updateuser);
+        res.json({"code": "OK", "data": {updateuser}});
     } catch (err) {
         res.json(err);
     }
@@ -86,7 +86,7 @@ router.get('/getUser', async (req, res) => {
         })
         getuserDetails._doc.brands = brandsArr;
         //const userdetails = await User.findOne({_id: getuser.user_id});
-        res.json(getuserDetails);
+        res.json({"code": "OK", "data": {getuserDetails}});
     } catch (error) {
         res.json({ message: error });
     }
@@ -108,44 +108,46 @@ router.delete('/deleteUser/:id', async (req, res) => {
 router.get('/getUsers', async (req, res) => {
     let users;
     try {
-        users = await User.aggregate([{
-            $lookup: {
-                from: "userbrands",
-                localField: "_id",
-                foreignField: "user",
-                as: "userbrands"
-            }
-}, {
-            $unwind: "$userbrands"
-        },
-         {
-            $lookup: {
-                from: "brands",
-                localField: "userbrands.brand",
-                foreignField: "_id",
-                as: "brands"
-            }
-        }, {
-            $unwind: "$brands"
-        },
-        {
-            $project: {
-             firstName: 1, 
-             lastName: 1,  
-             email: 1, 
-             brands: 1,
-            }
-        }
-])
-        let products = []
-        users.forEach((item) => {
-            products.push(item.brands)
-        })
-        //console.log(users[0].brands)
-        users[0].brands = products
-        users.splice(1);
-        //users.brands = brands
-        res.json({"Code": "OK", "data": {users}});
+        users = await User.find();
+//         users = await User.aggregate([{
+//             $lookup: {
+//                 from: "userbrands",
+//                 localField: "_id",
+//                 foreignField: "user",
+//                 as: "userbrands"
+//             }
+// }, {
+//             $unwind: "$userbrands"
+//         },
+//          {
+//             $lookup: {
+//                 from: "brands",
+//                 localField: "userbrands.brand",
+//                 foreignField: "_id",
+//                 as: "brands"
+//             }
+//         }, {
+//             $unwind: "$brands"
+//         },
+//         {
+//             $project: {
+//              firstName: 1, 
+//              lastName: 1,  
+//              email: 1, 
+//              brands: 1,
+//             }
+//         }
+// ])
+//         let products = []
+//         users.forEach((item) => {
+//             products.push(item.brands)
+//         })
+//         //console.log(users[0].brands)
+//         users[0].brands = products
+//         users.splice(1);
+//         const finalres = await User.find();
+//         console.log(finalres);
+        res.json({"code": "OK", "data": {users}});
     } catch (error) {
         res.json({ message: error });
     }
