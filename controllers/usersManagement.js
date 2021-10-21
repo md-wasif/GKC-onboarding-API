@@ -97,7 +97,7 @@ router.get('/getUser', async (req, res) => {
 router.delete('/deleteUser/:id', async (req, res) => {
     try {
         const removedUser = await User.remove({ _id: req.params.id });
-        res.json(removedUser);
+        res.json({"code":"OK", "data": {removedUser}});
     } catch (error) {
         res.json({ message: error });
     }
@@ -107,39 +107,30 @@ router.delete('/deleteUser/:id', async (req, res) => {
 
 router.get('/getUsers', async (req, res) => {
     let users;
-    let getBrands;
-    let getallusers = [];
     try {
-        users = await User.find();
-     
-        // getallusers = users.map(async(user) => {
-        //     getBrands = await UserBrand.aggregate([{
-        //         $match: { user: user._id }
-        //     }, {
-        //         $lookup: {
-        //             from: "brands",
-        //             localField: "brand",
-        //             foreignField: "_id",
-        //             as: "brands"
-        //         }
-        //     }, {
-        //         $unwind: "$brands"
-        //     },
-        //     ])
-        //     let brandsArrall = [];
-        //     getBrands.forEach((brand) => {
-        //         brandsArrall = brandsArrall.concat(brand.brands);
-        //     })
-        //     user._doc.brands = brandsArrall;
-
-        //     //console.log(user);
-        //     return user;
-        //    // getallusers = {...getallusers, ...user};
-        //     //res.send(user);
-        //     //console.log(getallusers);
-        // });
-        // console.log(getallusers);
-         res.json(users);
+        users = await User.aggregate([{
+            $lookup: {
+                from: "userbrands",
+                localField: "_id",
+                foreignField: "user",
+                as: "userbrands"
+            }
+}, {
+            $unwind: "$userbrands"
+        },
+         {
+            $lookup: {
+                from: "brands",
+                localField: "userbrands.brand",
+                foreignField: "_id",
+                as: "brands"
+            }
+        }, {
+            $unwind: "$brands"
+        },
+])
+        //console.log(resArr);
+        res.json(users);
     } catch (error) {
         res.json({ message: error });
     }
@@ -157,7 +148,7 @@ router.put('/deactivateUser', async (req, res) => {
             { $set: { "isActive": getUser } }
         );
         const getdeactiveUser = await User.findById(userinfo_id);
-        res.json(getdeactiveUser);
+        res.json({"code":"OK", "data": {getdeactiveUser}});
     } catch (error) {
         res.json({ message: error });
     }
