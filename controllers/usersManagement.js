@@ -130,7 +130,7 @@ router.get('/getUsers', async (req, res) => {
         },
 ])
         //console.log(resArr);
-        res.json(users);
+        res.json({"Code": "OK", "data": {users}});
     } catch (error) {
         res.json({ message: error });
     }
