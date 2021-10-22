@@ -123,7 +123,7 @@ router.post('/createBrand', async (req, res) => {
     const filterId = await parseJwt(token);
     const userId = filterId.id;
 
-    const brandExist = await UserBrand.findOne({ brand: req.body.brand });
+    const brandExist = await UserBrand.findOne({ brand: req.body.brand, user: userId});
     if(brandExist) return res.status(400).send('Brand already exists..');
 
     const newUser = await UserBrand.create({
