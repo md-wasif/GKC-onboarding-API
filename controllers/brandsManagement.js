@@ -124,7 +124,7 @@ router.post('/createBrand', async (req, res) => {
     const userId = filterId.id;
 
     const brandExist = await UserBrand.findOne({ brand: req.body.brand, user: userId});
-    if(brandExist) return res.status(400).send('Brand already exists..');
+    if(brandExist) return res.status(200).send({"code" : "OK", "message": "Brand already exists.."});
 
     const newUser = await UserBrand.create({
         user: userId,
