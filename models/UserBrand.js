@@ -12,7 +12,8 @@ const userBrandSchema = new mongoose.Schema({
     default: true
   },
   restaurantURL: {
-    type: String,
+    type: Array,
+    default: [],
   },
   user: {
     type: mongoose.Schema.Types.ObjectId, ref: 'User'

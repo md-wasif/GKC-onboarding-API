@@ -42,7 +42,10 @@ router.get('/getAllBrands', async (req, res) => {
             }
         }, {
             $unwind: "$brand"
-        }, {
+        // }, {
+        //     $group: {resutaurantName: "$restaurantURL"},
+        // },{
+        },{
            $project: {
                 brand: 1,
                 products: 1,

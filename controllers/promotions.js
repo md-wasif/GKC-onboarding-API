@@ -68,8 +68,8 @@ router.put('/deactivatePromotion', async (req, res) => {
         const getNumber = req.body.enddate;
         console.log(getNumber);
         await Promotion.updateOne({ _id: promotion_id },
-            [{ $set: { "isActive": getData,   enddate: { $add: ["$enddate", getNumber*startdate] } }}]
-        );
+            //[{ $set: { "isActive": getData, enddate: { $add: ["$enddate", getNumber*24*60*60000] } }}]
+    );
         const getdeactiveUser = await Promotion.findById(promotion_id);
         res.json({"code":"OK", "data": getdeactiveUser});
     } catch (error) {
