@@ -61,14 +61,16 @@ router.get('/getDetails', async (req, res) => {
 
 router.put('/deactivatePromotion', async (req, res) => {
 
-    var userinfo_id = mongoose.Types.ObjectId(req.query.userId);
+    var promotion_id = mongoose.Types.ObjectId(req.query.Id);
 
     try {
-        const getUser = req.body.isActive;
-        await User.updateOne({ _id: userinfo_id },
-            { $set: { "isActive": getUser } }
+        const getData = req.body.isActive;
+        const getNumber = req.body.enddate;
+        console.log(getNumber);
+        await Promotion.updateOne({ _id: promotion_id },
+            [{ $set: { "isActive": getData,   enddate: { $add: ["$enddate", getNumber*startdate] } }}]
         );
-        const getdeactiveUser = await User.findById(userinfo_id);
+        const getdeactiveUser = await Promotion.findById(promotion_id);
         res.json({"code":"OK", "data": getdeactiveUser});
     } catch (error) {
         res.json({"code": "ERROR", message: error.message });
