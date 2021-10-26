@@ -15,21 +15,20 @@ router.post('/', async (req, res) => {
     });
     try {
         const savedUser = await Profile.save();
-        res.json(savedUser);
+        res.json({ "code": "OK", "message": "Creating new User Sussfully.." });
     } catch (error) {
-        res.json({ message: error });
+        res.json({ "code": "ERROR", message: error.message });
     }
 });
-
 
 
 // RETURNS ALL THE USERS IN THE DATABASE
 router.get('/', async (req, res) => {
     try {
         const users = await Profile.find();
-        res.json(users);
+        res.json({ "code": "OK", "data": users });
     } catch (error) {
-        res.json({ message: error });
+        res.json({ "code": "ERROR", message: error.message });
     }
 });
 
@@ -37,9 +36,9 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const user = await Profile.findById(req.params.id);
-        res.json(user);
+        res.json({ "code": "OK", "data": user });
     } catch (error) {
-        res.json({ message: error });
+        res.json({ "code": "ERROR", message: error.message });
     }
 });
 
@@ -47,9 +46,9 @@ router.get('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const removedUser = await Profile.remove({ _id: req.params.id });
-        res.json(removedUser);
+        res.json({ "code": "OK", "data": removedUser });
     } catch (error) {
-        res.json({ message: error });
+        res.json({ "code": "ERROR", message: error.message });
     }
 });
 
@@ -57,9 +56,9 @@ router.delete('/:id', async (req, res) => {
 router.put('/:id', async (req, res) => {
     try {
         const updateuser = await Profile.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        res.json(updateuser);
-    } catch (err) {
-        res.json(err);
+        res.json({ "code": "OK", "data": updateuser });
+    } catch (error) {
+        res.json({ "code": "ERROR", message: error.message });
     }
 });
 

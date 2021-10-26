@@ -6,6 +6,9 @@ const promotionSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    description: {
+        type: String
+    },
     offer: {
         type: String,
         required: true,
@@ -16,7 +19,7 @@ const promotionSchema = new mongoose.Schema({
     },
     isActive: {
         type: Boolean,
-        default: true
+        default: false
     },
     startdate: {
         type: Date,

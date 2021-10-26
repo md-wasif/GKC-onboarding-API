@@ -14,12 +14,11 @@ const parseJwt = async (token) => {
     var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
-
-    //console.log(jsonPayload);
     return JSON.parse(jsonPayload);
 };
 
-//Create User Management..
+
+
 router.post('/createUser', async (req, res) => {
 
     const token = req.header('auth-token');
@@ -29,7 +28,6 @@ router.post('/createUser', async (req, res) => {
     //Hash Password
     // const salt = await bcrypt.genSalt(10);
     // const hashedPassword = await bcrypt.hash(req.body.password, salt);
-
 
     const user = new User({
         profile: userId,
@@ -42,17 +40,16 @@ router.post('/createUser', async (req, res) => {
         const savedUser = await user.save();
         res.json({"code": "OK", "message": "Create User Sussfully."});
     } catch (error) {
-        res.json({ message: error });
+        res.json({"code": "ERROR", message: error.message });
     }
 });
-
 
 
 //Edit User Management...
 router.put('/editUser/:id', async (req, res) => {
     try {
         const updateuser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        res.json({"code": "OK", "data": {updateuser}});
+        res.json({"code": "OK", "data": updateuser});
     } catch (err) {
         res.json(err);
     }
@@ -85,10 +82,9 @@ router.get('/getUser', async (req, res) => {
             brandsArr = brandsArr.concat(brand.brands);
         })
         getuserDetails._doc.brands = brandsArr;
-        //const userdetails = await User.findOne({_id: getuser.user_id});
-        res.json({"code": "OK", "data": {getuserDetails}});
+        res.json({"code": "OK", "data": getuserDetails});
     } catch (error) {
-        res.json({ message: error });
+        res.json({"code": "ERROR", message: error.message });
     }
 });
 
@@ -97,9 +93,9 @@ router.get('/getUser', async (req, res) => {
 router.delete('/deleteUser/:id', async (req, res) => {
     try {
         const removedUser = await User.remove({ _id: req.params.id });
-        res.json({"code":"OK", "data": {removedUser}});
+        res.json({"code":"OK", "data": removedUser});
     } catch (error) {
-        res.json({ message: error });
+        res.json({"code": "ERROR", message: error.message });
     }
 });
 
@@ -118,9 +114,6 @@ router.get('/getUsers', async (req, res) => {
                 as: "userbrands"
             }
         },
-// }, {
-//             $unwind: "$userbrands"
-//         },
          {
             $lookup: {
                 from: "brands",
@@ -129,9 +122,6 @@ router.get('/getUsers', async (req, res) => {
                 as: "brands"
             }
         },
-        // }, {
-        //     $unwind: "$brands"
-        // },
         {
             $project: {
              firstName: 1, 
@@ -152,9 +142,9 @@ router.get('/getUsers', async (req, res) => {
 
         //console.log(userdetails);
         //console.log(users[0]);
-        res.json({"code": "OK", "data": {users}});
+        res.json({"code": "OK", "data": users});
     } catch (error) {
-        res.json({ message: error });
+        res.json({"code": "ERROR", message: error.message });
     }
 });
 
@@ -170,9 +160,9 @@ router.put('/deactivateUser', async (req, res) => {
             { $set: { "isActive": getUser } }
         );
         const getdeactiveUser = await User.findById(userinfo_id);
-        res.json({"code":"OK", "data": {getdeactiveUser}});
+        res.json({"code":"OK", "data": getdeactiveUser});
     } catch (error) {
-        res.json({ message: error });
+        res.json({"code": "ERROR", message: error.message });
     }
 });
 

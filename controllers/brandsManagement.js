@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const atob = require('atob');
-const upload = require("../middleware/upload");
 const router = require('express').Router();
 const Brand = require('../models/Brand');
 const Cuisine = require('../models/Cuisine');
@@ -8,6 +7,7 @@ const Product = require('../models/Product');
 const UserBrand = require('../models/UserBrand');
 const authVerification = require('../routes/verifyToken');
 
+const upload = require("../middleware/upload");
 
 
 const parseJwt = async (token) => {
@@ -16,14 +16,12 @@ const parseJwt = async (token) => {
     var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
-
     //console.log(jsonPayload);
     return JSON.parse(jsonPayload);
 };
 
 
 
-//GET /getAllBrands get all brands for user...
 router.get('/getAllBrands', async (req, res) => {
 
     const token = req.header('auth-token');
@@ -44,50 +42,79 @@ router.get('/getAllBrands', async (req, res) => {
             }
         }, {
             $unwind: "$brand"
+        }, {
+            $project: {
+                brand: 1,
+                products: 1,
+                user: 1,
+                restaurantURL: {
+                    restaurantName: "$restaurantURL.name" 
+                },
+                restaurantName: 1,
+                isActive: 1
+            }
         }]);
-        res.json({"code": "OK", "data": {userBrands}});
+        res.json({ "code": "OK", "data": userBrands });
     } catch (error) {
-        res.json({ message: error });
+        res.json({ "code": "ERROR", message: error.message });
     }
 })
 
 
 
-//GET /getCuisines All the Cuisines..
 router.get('/getCuisines', async (req, res) => {
 
     try {
-        const cuisines = await Cuisine.find({}).select("-isDeleted");
-        res.json({"code": "OK", "data": {cuisines}});
+        const cuisines = await Cuisine.aggregate([
+            {
+                $project: {
+                    name: 1
+                }
+            }
+        ]);
+        res.json({ "code": "OK", "data": cuisines });
     } catch (error) {
-        res.json({ message: error });
+        res.json({ "code": "ERROR", message: error.message });
     }
 });
 
 
-//GET /getBrands get all brands for cuisine..
+
 router.get('/getBrands', async (req, res) => {
 
-    var cuisine = req.query.cuisine;
+    var cuisine = mongoose.Types.ObjectId(req.query.cuisine);
     try {
-        const brands = await Brand.find({ cuisine: cuisine }).select("-isDeleted -cuisine");
-        res.json({"code": "OK", "data": {brands}});
+        const brands = await Brand.aggregate([{
+            $match: { cuisine: cuisine }
+        }, {
+            $project: {
+                name: 1
+            }
+        }])
+        res.json({ "code": "OK", "data": brands });
     } catch (error) {
-        res.json({ message: error });
+        res.json({ "code": "ERROR", message: error.message });
     }
 });
 
 
 
-//GET /getProducts get all products for brand..
 router.get('/getProducts', async (req, res) => {
 
-    var brand = req.query.brand;
+    var brand = mongoose.Types.ObjectId(req.query.brand);
     try {
-        const products = await Product.find({ brand: brand }).select("-isDeleted -brand");
-        res.json({"code": "OK", "data": {products}});
+        const products = await Product.aggregate([{
+            $match: { brand: brand },
+        }, {
+            $project: {
+                name: 1,
+                description: 1,
+                categories: 1
+            }
+        }])
+        res.json({ "code": "OK", "data": products });
     } catch (error) {
-        res.json({ message: error });
+        res.json({ "code": "ERROR", message: error.message });
     }
 });
 
@@ -116,33 +143,32 @@ router.get('/getProducts', async (req, res) => {
 
 
 
-//POST /createBrand get brand from insert Id and return brand object with count of products..
-router.post('/createBrand', async (req, res) => {
+router.post('/createBrand', authVerification, async (req, res) => {
 
     const token = req.header('auth-token');
     const filterId = await parseJwt(token);
     const userId = filterId.id;
 
-    const brandExist = await UserBrand.findOne({ brand: req.body.brand, user: userId});
-    if(brandExist) return res.status(200).send({"code" : "OK", "message": "Brand already exists.."});
+    const brandExist = await UserBrand.findOne({ brand: req.body.brand, user: userId });
+    if (brandExist) return res.status(200).send({ "code": "OK", "message": "Brand already exists.." });
 
     const newUser = await UserBrand.create({
         user: userId,
         brand: req.body.brand,
         products: req.body.products,
+        restaurantURL: req.body.url,
     });
     try {
         const userbrands = await newUser.save();
-        res.json({"code": "OK", "data": {user: newUser._id}});
+        res.json({ "code": "OK", "data": { user: newUser._id } });
     } catch (error) {
-        res.json({ message: error });
+        res.json({ "code": "ERROR", message: error.message });
     }
 });
 
 
 
 
-//GET /viewBrand get brand and products from userBrand.
 router.get('/viewBrand', async (req, res) => {
 
     var userBrandId = mongoose.Types.ObjectId(req.query.userBrand);
@@ -174,37 +200,40 @@ router.get('/viewBrand', async (req, res) => {
             }
         }, {
             $unwind: "$brand"
+        }, {
+            $project: {
+                brand: 1,
+                product: 1
+            }
         }
-         ]);
+        ]);
         let products = []
         userbrands.forEach((item) => {
             products.push(item.product)
         })
-       // console.log(userbrands);
         userbrands[0].product = products
         userbrands.splice(1);
         const getuserbrands = userbrands[0];
-       res.json({"code": "OK", "data": {getuserbrands}});
+        res.json({ "code": "OK", "data": getuserbrands });
     } catch (error) {
-        res.json({ message: error });
+        res.json({ "code": "ERROR", message: error.message });
     }
 });
 
 
 
-//UPDATE /editBrand  update userbrand...
- router.put('/editBrand', async (req, res) => {
+router.put('/editBrand', async (req, res) => {
 
     var userbrandId = mongoose.Types.ObjectId(req.query.userBrand);
     try {
         const getProducts = req.body.products;
-           await UserBrand.updateOne({ _id: userbrandId },
+        await UserBrand.updateOne({ _id: userbrandId },
             { $set: { "products": getProducts } }
         );
         const getneweditBrand = await UserBrand.findById(userbrandId);
-        res.json({"code": "OK", "data": {getneweditBrand}});
+        res.json({ "code": "OK", "data": getneweditBrand });
     } catch (error) {
-        res.json({ message: error });
+        res.json({ "code": "ERROR", message: error.message });
     }
 });
 
@@ -219,9 +248,9 @@ router.put('/toggleBrand', async (req, res) => {
             { $set: { "isActive": getUser } }
         );
         const getdeactiveUserbrand = await UserBrand.findById(userinfo_id);
-        res.json({"code": "OK", "data":{getdeactiveUserbrand}});
+        res.json({ "code": "OK", "data": getdeactiveUserbrand });
     } catch (error) {
-        res.json({ message: error });
+        res.json({ "code": "ERROR", message: error.message });
     }
 });
 
