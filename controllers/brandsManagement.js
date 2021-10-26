@@ -43,16 +43,16 @@ router.get('/getAllBrands', async (req, res) => {
         }, {
             $unwind: "$brand"
         }, {
-            $project: {
+           $project: {
                 brand: 1,
                 products: 1,
                 user: 1,
-                restaurantURL: {
-                    restaurantName: "$restaurantURL" 
-                },
-                restaurantName: 1,
+                // restaurantURL: {
+                //     restaurantName: "$restaurantURL" 
+                // },
+                restaurantURL: 1,
                 isActive: 1
-            }
+           }
         }]);
         res.json({ "code": "OK", "data": userBrands });
     } catch (error) {
