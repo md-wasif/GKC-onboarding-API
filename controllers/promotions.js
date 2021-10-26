@@ -25,10 +25,10 @@ router.post('/createPromotion', async (req, res) => {
 router.get('/getPromotion', async (req, res) => {
 
       try{
-           const promotionArray = await Promotion.aggregate([
+           const savePromotion = await Promotion.aggregate([
                {$project: {__v: 0}}
            ]);
-           res.json({"code": "Ok", "data": promotionArray});
+           res.json({"code": "OK", "data": savePromotion});
       }catch(e){
           res.json({"code": "Error", message: error})
       }
