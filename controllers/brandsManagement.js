@@ -48,7 +48,7 @@ router.get('/getAllBrands', async (req, res) => {
                 products: 1,
                 user: 1,
                 restaurantURL: {
-                    restaurantName: "$restaurantURL.name" 
+                    restaurantName: "$restaurantURL" 
                 },
                 restaurantName: 1,
                 isActive: 1

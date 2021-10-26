@@ -55,7 +55,24 @@ router.get('/getDetails', async (req, res) => {
       }catch(error){
           res.json({"code": "ERROR", message: error.message});
       }
-})
+});
 
+
+
+router.put('/deactivatePromotion', async (req, res) => {
+
+    var userinfo_id = mongoose.Types.ObjectId(req.query.userId);
+
+    try {
+        const getUser = req.body.isActive;
+        await User.updateOne({ _id: userinfo_id },
+            { $set: { "isActive": getUser } }
+        );
+        const getdeactiveUser = await User.findById(userinfo_id);
+        res.json({"code":"OK", "data": getdeactiveUser});
+    } catch (error) {
+        res.json({"code": "ERROR", message: error.message });
+    }
+});
 
 module.exports = router;
