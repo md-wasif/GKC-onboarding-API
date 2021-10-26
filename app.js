@@ -17,6 +17,7 @@ const authRoute = require('./routes/auth');
 const usercontroller = require('./controllers/users');
 const userManagementcontroller = require('./controllers/usersManagement');
 const brandManagementcontroller = require('./controllers/brandsManagement');
+const promotioncontroller = require('./controllers/promotions');
 
 //Middlewares
 app.use(express.json());
@@ -26,7 +27,8 @@ app.use(cors());
 //Route Middlewares
 app.use('/', authRoute);
 app.use('/', userManagementcontroller);  //User Managment..
-app.use('/', brandManagementcontroller);
+app.use('/', brandManagementcontroller); //Brand Management
+app.use('/', promotioncontroller);       //Promotion
 app.use('/api/users', usercontroller);   //SignUp
 
 
