@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const router = require('express').Router();
 const atob = require('atob');
+const bcrypt = require('bcrypt');
 
 
 
@@ -25,16 +26,16 @@ router.post('/createUser', async (req, res) => {
     const filterId = await parseJwt(token);
     const userId = filterId.id;
 
-    //Hash Password
-    // const salt = await bcrypt.genSalt(10);
-    // const hashedPassword = await bcrypt.hash(req.body.password, salt);
+    
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
     const user = new User({
         profile: userId,
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
-        password: req.body.password,
+        password: hashedPassword,
     });
     try {
         const savedUser = await user.save();

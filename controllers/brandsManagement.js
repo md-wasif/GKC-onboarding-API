@@ -141,12 +141,8 @@ router.get('/getProducts', async (req, res) => {
             $match: { brand: brand },
         },
         {
-            $group: {_id: "$categories"}
-        }
-        // {
-        //       $group: {_id: {categories: "$categories", items: "$name", description: "$description"}}
-        // }])
-    ])
+              $group: {_id: {categories: "$categories", items: "$name", description: "$description"}}
+        }])
         // let itemsArr = []
         // products.forEach((item) => {
         //     itemsArr.push(item.items)

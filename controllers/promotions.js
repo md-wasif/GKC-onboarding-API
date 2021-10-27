@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const router = require('express').Router();
-const atob = require('atob');
 
 
 
@@ -8,21 +7,11 @@ const User = require('../models/User');
 const Promotion = require('../models/Promotion');
 
 
-const parseJwt = async (token) => {
-    var base64Url = token.split('.')[1];
-    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-    //console.log(jsonPayload);
-    return JSON.parse(jsonPayload);
-};
 
 router.post('/createPromotion', async (req, res) => {
 
     const token = req.header('auth-token');
     const filterId = await parseJwt(token);
-    const userId = mongoose.Types.ObjectId(filterId.id)
 
     const promotion = new Promotion({
         // user: userId,
@@ -60,41 +49,54 @@ router.get('/getPromotion', async (req, res) => {
 
 router.get('/getDetails', async (req, res) => {
 
-      const promotion_id = mongoose.Types.ObjectId(req.query.id);
-      try{
-            const saveDetails = await Promotion.findById({_id: promotion_id}).select("-_id -offer -goaltype -isActive -startdate -enddate -__v"); 
-            res.json({"code": "OK", "data": saveDetails})
-      }catch(error){
-          res.json({"code": "ERROR", message: error.message});
-      }
+    const promotion_id = mongoose.Types.ObjectId(req.query.id);
+    try {
+        const saveDetails = await Promotion.findById({ _id: promotion_id }).select("-_id -offer -goaltype -isActive -startdate -enddate -__v");
+        res.json({ "code": "OK", "data": saveDetails })
+    } catch (error) {
+        res.json({ "code": "ERROR", message: error.message });
+    }
 });
 
 
 
-router.put('/deactivatePromotion', async (req, res) => {
-    
-    const token = req.header('auth-token');
-    const filterId = await parseJwt(token);
-    const userId = mongoose.Types.ObjectId(filterId.id)
+router.put('/activePromotion', async (req, res) => {
+
     var promotion_id = mongoose.Types.ObjectId(req.query.Id);
-
+    var getActivateData;
     try {
-        const getData = req.body.promotion;
+        const getData = req.body.isActive;
         const getNumber = req.body.input;
-        await User.updateOne({user: userId}, 
-            { $set: { "promotion": getData}})
-        // $match: { user: userId }
-        await Promotion.updateOne({ _id: promotion_id},
+        await Promotion.updateOne({ _id: promotion_id },
 
-             [{ $set: {enddate: { $add: ["$enddate", getNumber*7*24*60*60000]}}}],
-    //         // { $set: { "isActive": getData}},
-    //         // { enddate : { $isActive : true }},
-    //         // [{$set: {enddate: { $add: ["$enddate", getNumber*86400000] } }}]
-     );
-        const getdeactiveUser = await Promotion.findById(promotion_id).select("-__v");
-        res.json({"code":"OK", "data": getdeactiveUser});
+            [{ $set: { "isActive": getData, enddate: { $add: ["$enddate", getNumber * 7 * 24 * 60 * 60000] } } }],
+        );
+        await User.updateOne({
+            $set: { "promotion": promotion_id }
+        })
+
+        getActivateData = await User.aggregate([{
+            $unwind: "$promotion"
+        }, {
+            $lookup: {
+                from: "promotions",
+                localField: "promotion",
+                foreignField: "_id",
+                as: "promotions"
+            }
+        }, {
+            $unwind: "$promotions"
+        }, {
+            $project: {
+                firstName: 1,
+                lastName: 1,
+                promotions: 1
+            }
+        }])
+        // console.logconst getdeactiveUser = await Promotion.findById(promotion_id).select("-__v");
+        res.json({ "code": "OK", "data": getActivateData });
     } catch (error) {
-        res.json({"code": "ERROR", message: error.message });
+        res.json({ "code": "ERROR", message: error.message });
     }
 });
 

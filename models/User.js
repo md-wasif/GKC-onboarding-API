@@ -29,8 +29,8 @@ const userSchema = new mongoose.Schema({
     default: true
   },
   promotion: {
-      type: Boolean,
-      default: false
+    type: Array,
+    default: [],
   }
 }, {
   timestamps: true
