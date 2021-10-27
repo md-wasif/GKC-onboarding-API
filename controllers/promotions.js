@@ -1,11 +1,23 @@
 const mongoose = require('mongoose');
 const router = require('express').Router();
+const atob = require('atob');
 
 
 
 const User = require('../models/User');
 const Promotion = require('../models/Promotion');
 
+
+
+const parseJwt = async (token) => {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    //console.log(jsonPayload);
+    return JSON.parse(jsonPayload);
+};
 
 
 router.post('/createPromotion', async (req, res) => {
@@ -62,6 +74,9 @@ router.get('/getDetails', async (req, res) => {
 
 router.put('/activePromotion', async (req, res) => {
 
+    const token = req.header('auth-token');
+    const filterId = await parseJwt(token);
+    const userId = mongoose.Types.ObjectId(filterId.id)
     var promotion_id = mongoose.Types.ObjectId(req.query.Id);
     var getActivateData;
     try {
@@ -72,7 +87,8 @@ router.put('/activePromotion', async (req, res) => {
             [{ $set: { "isActive": getData, enddate: { $add: ["$enddate", getNumber * 7 * 24 * 60 * 60000] } } }],
         );
         await User.updateOne({
-            $set: { "promotion": promotion_id }
+            $match: { _id: userId }},
+            {$set: { "promotion": promotion_id }
         })
 
         getActivateData = await User.aggregate([{
