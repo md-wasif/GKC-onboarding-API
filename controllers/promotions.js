@@ -18,7 +18,12 @@ const parseJwt = async (token) => {
 
 router.post('/createPromotion', async (req, res) => {
 
+    const token = req.header('auth-token');
+    const filterId = await parseJwt(token);
+    const userId = mongoose.Types.ObjectId(filterId.id)
+    
     const promotion = new Promotion({
+        user: userId,
         name: req.body.name,
         description: req.body.description,
         offer: req.body.offer,
