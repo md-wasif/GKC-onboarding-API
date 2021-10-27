@@ -139,12 +139,9 @@ router.get('/getProducts', async (req, res) => {
     try {
         const products = await Product.aggregate([{
             $match: { brand: brand },
-        }, {
-            $project: {
-                name: 1,
-                description: 1,
-                categories: 1
-            }
+        },
+        {
+              $group: {_id: {categories: "$categories", items: "$name", description: "$description"}}
         }])
         res.json({ "code": "OK", "data": products });
     } catch (error) {
