@@ -44,13 +44,7 @@ router.get('/getDetails', async (req, res) => {
 
       const promotion_id = mongoose.Types.ObjectId(req.query.id);
       try{
-            const saveDetails = await Promotion.aggregate([
-                {$match: {_id: promotion_id}},{
-                    $project: {
-                        name: 1,
-                        description: 1
-                    }
-                }]);
+            const saveDetails = await Promotion.findById({_id: promotion_id}).select("-_id -offer -goaltype -isActive -startdate -enddate -__v"); 
             res.json({"code": "OK", "data": saveDetails})
       }catch(error){
           res.json({"code": "ERROR", message: error.message});
