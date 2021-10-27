@@ -17,10 +17,10 @@ const promotionSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    isActive: {
-        type: Boolean,
-        default: false
-    },
+    // isActive: {
+    //     type: Boolean,
+    //     default: false
+    // },
     startdate: {
         type: Date,
         default: Date.now,

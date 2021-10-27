@@ -1,8 +1,10 @@
 const mongoose = require('mongoose');
 const router = require('express').Router();
+const atob = require('atob');
 
 
 
+const User = require('../models/User');
 const Promotion = require('../models/Promotion');
 
 
@@ -21,9 +23,9 @@ router.post('/createPromotion', async (req, res) => {
     const token = req.header('auth-token');
     const filterId = await parseJwt(token);
     const userId = mongoose.Types.ObjectId(filterId.id)
-    
+
     const promotion = new Promotion({
-        user: userId,
+        // user: userId,
         name: req.body.name,
         description: req.body.description,
         offer: req.body.offer,
@@ -77,16 +79,18 @@ router.put('/deactivatePromotion', async (req, res) => {
     var promotion_id = mongoose.Types.ObjectId(req.query.Id);
 
     try {
-        const getData = req.body.isActive;
+        const getData = req.body.promotion;
         const getNumber = req.body.input;
+        await User.updateOne({user: userId}, 
+            { $set: { "promotion": getData}})
         // $match: { user: userId }
-        await Promotion.updateOne({ _id: promotion_id, user: userId},
+        await Promotion.updateOne({ _id: promotion_id},
 
-             [{ $set: { "isActive": getData, enddate: { $add: ["$enddate", getNumber*7*24*60*60000]}}}],
-            // { $set: { "isActive": getData}},
-            // { enddate : { $isActive : true }},
-            // [{$set: {enddate: { $add: ["$enddate", getNumber*86400000] } }}]
-    );
+             [{ $set: {enddate: { $add: ["$enddate", getNumber*7*24*60*60000]}}}],
+    //         // { $set: { "isActive": getData}},
+    //         // { enddate : { $isActive : true }},
+    //         // [{$set: {enddate: { $add: ["$enddate", getNumber*86400000] } }}]
+     );
         const getdeactiveUser = await Promotion.findById(promotion_id).select("-__v");
         res.json({"code":"OK", "data": getdeactiveUser});
     } catch (error) {
