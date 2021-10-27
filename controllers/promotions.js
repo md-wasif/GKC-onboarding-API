@@ -43,16 +43,33 @@ router.post('/createPromotion', async (req, res) => {
 
 
 router.get('/getPromotion', async (req, res) => {
+    const token = req.header('auth-token');
+    const filterId = await parseJwt(token);
+    const userId = mongoose.Types.ObjectId(filterId.id)
 
     try {
-        const savePromotion = await Promotion.aggregate([
-            {
-                $project: {
-                    __v: 0
-                }
+        const savedPromotion = await User.aggregate([{
+            $match: { _id: userId }},{
+            $unwind: "$promotion"
+        }, {
+            $lookup: {
+                from: "promotions",
+                localField: "promotion",
+                foreignField: "_id",
+                as: "promotions"
             }
+        }, {
+            $unwind: "$promotions"
+        }
+
+        // const savePromotion = await Promotion.aggregate([
+        //     {
+        //         $project: {
+        //             __v: 0
+        //         }
+        //     }
         ]);
-        res.json({ "code": "OK", "data": savePromotion });
+        res.json({ "code": "OK", "data": savedPromotion });
     } catch (error) {
         res.json({ "code": "Error", message: error.message })
     }
