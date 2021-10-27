@@ -84,12 +84,13 @@ router.put('/activePromotion', async (req, res) => {
         const getNumber = req.body.input;
         await Promotion.updateOne({ _id: promotion_id },
 
-            [{ $set: { "isActive": getData, enddate: { $add: ["$enddate", getNumber * 7 * 24 * 60 * 60000] } } }],
+            [{ $set: { enddate: { $add: ["$enddate", getNumber * 7 * 24 * 60 * 60000] } } }],
         );
         await User.updateOne({
             $match: { _id: userId }},
             {$set: { "promotion": promotion_id }
-        })
+        }
+)
 
         getActivateData = await User.aggregate([{
             $unwind: "$promotion"
@@ -102,7 +103,8 @@ router.put('/activePromotion', async (req, res) => {
             }
         }, {
             $unwind: "$promotions"
-        }, {
+        }, {$set: {"promotions.isActive" : getData}},
+        {
             $project: {
                 firstName: 1,
                 lastName: 1,

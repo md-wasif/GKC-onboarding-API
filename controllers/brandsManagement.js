@@ -138,17 +138,15 @@ router.get('/getProducts', async (req, res) => {
     var brand = mongoose.Types.ObjectId(req.query.brand);
     try {
         const products = await Product.aggregate([{
-            $match: { brand: brand },
+            $unwind: "$categories"},
+            // {
+            // $group: { 
+            //     _id:{brand: "$categories.brand"}
+            // }},{
+            {
+            $match: { brand: brand }
         },
-        {
-              $group: {_id: {categories: "$categories", items: "$name", description: "$description"}}
-        }])
-        // let itemsArr = []
-        // products.forEach((item) => {
-        //     itemsArr.push(item.items)
-        // })
-        // products[0].items = itemsArr
-        // products.splice(1);
+    ])
         res.json({ "code": "OK", "data": products });
     } catch (error) {
         res.json({ "code": "ERROR", message: error.message });
