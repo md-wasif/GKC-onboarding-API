@@ -102,6 +102,37 @@ router.get('/getBrands', async (req, res) => {
 
 
 
+// router.get('/getProducts', async (req, res) => {
+
+//     var brand = mongoose.Types.ObjectId(req.query.brand);
+//     try{
+
+//         const categories = await Categorie.aggregate([{
+//             $match: { brand: brand },
+//         }, {
+//             $lookup: {
+//                 from: "products",
+//                 localField: "items",
+//                 foreignField: "_id",
+//                 as: "products"
+//             }
+//         }, {
+//             $unwind: "$products"
+//         }, {
+//             $project: {
+//                 name: {
+//                     "categoriesName": "$name"
+//                 },
+//                 name: 1,
+//                 products: 1
+//             }
+//         }])
+//         res.json({"code": "OK", "data": categories});
+//     }catch(error){
+//         res.json({"code": "ERROR", message: error.message});
+//     }
+// })
+
 router.get('/getProducts', async (req, res) => {
 
     var brand = mongoose.Types.ObjectId(req.query.brand);
