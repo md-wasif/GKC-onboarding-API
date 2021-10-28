@@ -4,8 +4,9 @@ const atob = require('atob');
 
 
 
-const User = require('../models/User');
 const Promotion = require('../models/Promotion');
+// const Category = require('../models/Category');
+const UserPromotion = require('../models/UserPromotion');
 
 
 
@@ -22,15 +23,10 @@ const parseJwt = async (token) => {
 
 router.post('/createPromotion', async (req, res) => {
 
-    const token = req.header('auth-token');
-    const filterId = await parseJwt(token);
-
     const promotion = new Promotion({
         // user: userId,
         name: req.body.name,
         description: req.body.description,
-        offer: req.body.offer,
-        goaltype: req.body.goaltype,
     })
     try {
         const savePromotion = await promotion.save();
@@ -41,17 +37,29 @@ router.post('/createPromotion', async (req, res) => {
 });
 
 
+router.post('/createUserPromotion', async (req, res) => {
 
-router.get('/getPromotion', async (req, res) => {
     const token = req.header('auth-token');
     const filterId = await parseJwt(token);
     const userId = mongoose.Types.ObjectId(filterId.id)
+    try{
+        const userPromotion = new UserPromotion({
+            user: userId,
+            promotion: req.body.promotion_id
+        })
+        await userPromotion.save();
+    }catch(error){
+        res.json({"code": "ERROR", message: error.message})
+    }
+})
 
+router.get('/getAllPromotion', async (req, res) => {
+    const token = req.header('auth-token');
+    const filterId = await parseJwt(token);
+    const userId = mongoose.Types.ObjectId(filterId.id)
     try {
-        const savedPromotion = await User.aggregate([{
-            $match: { _id: userId }},{
-            $unwind: "$promotion"
-        }, {
+        const savedPromotion = await UserPromotion.aggregate([{
+            $match: { user: userId }},{
             $lookup: {
                 from: "promotions",
                 localField: "promotion",
@@ -61,26 +69,30 @@ router.get('/getPromotion', async (req, res) => {
         }, {
             $unwind: "$promotions"
         }
-
-        // const savePromotion = await Promotion.aggregate([
-        //     {
-        //         $project: {
-        //             __v: 0
-        //         }
-        //     }
-        ]);
-        res.json({ "code": "OK", "data": savedPromotion });
+    ]);
+         let promotionArr = []
+         savedPromotion.forEach((item) => {
+             promotionArr.push(item.promotions)
+         })
+         savedPromotion[0].promotion = promotionArr
+         savedPromotion.splice(1);
+         const getPromotion = savedPromotion[0];
+        
+        res.json({ "code": "OK", "data": getPromotion });
     } catch (error) {
         res.json({ "code": "Error", message: error.message })
     }
 });
 
 
-router.get('/getDetails', async (req, res) => {
+router.get('/getPromotion', async (req, res) => {
 
-    const promotion_id = mongoose.Types.ObjectId(req.query.id);
+    // const token = req.header('auth-token');
+    // const filterId = await parseJwt(token);
+    // const userId = mongoose.Types.ObjectId(filterId.id)
+     const promotion_id = mongoose.Types.ObjectId(req.query.id);
     try {
-        const saveDetails = await Promotion.findById({ _id: promotion_id }).select("-_id -offer -goaltype -isActive -startdate -enddate -__v");
+        const saveDetails = await Promotion.findById({_id: promotion_id});
         res.json({ "code": "OK", "data": saveDetails })
     } catch (error) {
         res.json({ "code": "ERROR", message: error.message });
@@ -89,47 +101,24 @@ router.get('/getDetails', async (req, res) => {
 
 
 
-router.put('/activePromotion', async (req, res) => {
+router.put('/activeUserPromotion', async (req, res) => {
 
     const token = req.header('auth-token');
     const filterId = await parseJwt(token);
     const userId = mongoose.Types.ObjectId(filterId.id)
     var promotion_id = mongoose.Types.ObjectId(req.query.Id);
-    var getActivateData;
+    var gettogglePromotion;
     try {
         const getData = req.body.isActive;
-        const getNumber = req.body.input;
-        await Promotion.updateOne({ _id: promotion_id },
-
-            [{ $set: { enddate: { $add: ["$enddate", getNumber * 7 * 24 * 60 * 60000] } } }],
-        );
-        await User.updateOne({
-            $match: { _id: userId }},
-            {$set: { "promotion": promotion_id }
-        }
-)
-
-        getActivateData = await User.aggregate([{
-            $unwind: "$promotion"
-        }, {
-            $lookup: {
-                from: "promotions",
-                localField: "promotion",
-                foreignField: "_id",
-                as: "promotions"
-            }
-        }, {
-            $unwind: "$promotions"
-        }, {$set: {"promotions.isActive" : getData}},
-        {
-            $project: {
-                firstName: 1,
-                lastName: 1,
-                promotions: 1
-            }
-        }])
-        // console.logconst getdeactiveUser = await Promotion.findById(promotion_id).select("-__v");
-        res.json({ "code": "OK", "data": getActivateData });
+         const getNumber = req.body.input;
+        gettogglePromotion = await UserPromotion.updateOne({
+            $match: { user: userId, promotion: promotion_id }},
+            //{$set: { "endDate": getNumber * 7 * 24 * 60 * 60000}}
+            [{ $set: {"isActive": getData, endDate: { $add: ["$endDate", getNumber*7*24*60*60000] }}}],
+        )
+      
+        const getdeactiveUser = await UserPromotion.findOne({gettogglePromotion});
+        res.json({ "code": "OK", "data": getdeactiveUser });
     } catch (error) {
         res.json({ "code": "ERROR", message: error.message });
     }

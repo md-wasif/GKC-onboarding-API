@@ -10,15 +10,12 @@ const config = require('../token'); //get config file.
 //Register
 router.post('/register', async (req, res) => {
 
-  //LETS VALIDATE THE DATA BEFORE WE A USER.
   const { error } = registerValidation(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  //checking if the user is already in database.
   const emailExist = await User.findOne({ email: req.body.email });
   if (emailExist) return res.status(400).send('Email already exists');
 
-  //Hash Password
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
@@ -55,7 +52,6 @@ router.post('/login', async (req, res) => {
   }); //.send('Email or password is incorrect!');
 
   const validpass = await bcrypt.compare(req.body.password, user.password);
-  console.log(validpass);
   if (!validpass) return res.status(400).json({
     "code": "ERROR",
     "data": {

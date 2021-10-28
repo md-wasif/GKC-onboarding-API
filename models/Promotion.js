@@ -7,28 +7,23 @@ const promotionSchema = new mongoose.Schema({
         required: true,
     },
     description: {
-        type: String
-    },
-    offer: {
         type: String,
-        required: true,
+        required: false
     },
-    goaltype: {
+    image: {
         type: String,
-        required: true,
+        required: false
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
     },
     isActive: {
         type: Boolean,
         default: false
-    },
-    startdate: {
-        type: Date,
-        default: Date.now,
-    },
-    enddate: {
-        type: Date,
-        default: Date.now,
-    },
+    }
+}, {
+    timestamps: true
 });
 
 

@@ -26,7 +26,7 @@ router.post('/createUser', async (req, res) => {
     const filterId = await parseJwt(token);
     const userId = filterId.id;
 
-    
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
@@ -39,32 +39,20 @@ router.post('/createUser', async (req, res) => {
     });
     try {
         const savedUser = await user.save();
-        res.json({"code": "OK", "message": "Create User Sussfully."});
+        res.json({ "code": "OK", "message": "Create User Sussfully." });
     } catch (error) {
-        res.json({"code": "ERROR", message: error.message });
+        res.json({ "code": "ERROR", message: error.message });
     }
 });
 
 
-//Edit User Management...
-router.put('/editUser/:id', async (req, res) => {
-    try {
-        const updateuser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        res.json({"code": "OK", "data": updateuser});
-    } catch (err) {
-        res.json(err);
-    }
-});
-
-
-//Get User Management..
 router.get('/getUser', async (req, res) => {
     const userinfo_Id = mongoose.Types.ObjectId(req.query.userId);
     let getuserDetails;
     let checkBrand;
     try {
 
-        getuserDetails = await User.findOne({ _id: userinfo_Id });
+        getuserDetails = await User.findOne({ _id: userinfo_Id }, {_id: 1, firstName: 1, lastName: 1, isActive: 1});
         checkBrand = await UserBrand.aggregate([{
             $match: { user: userinfo_Id }
         }, {
@@ -83,30 +71,29 @@ router.get('/getUser', async (req, res) => {
             brandsArr = brandsArr.concat(brand.brands);
         })
         getuserDetails._doc.brands = brandsArr;
-        res.json({"code": "OK", "data": getuserDetails});
+        res.json({ "code": "OK", "data": getuserDetails });
     } catch (error) {
-        res.json({"code": "ERROR", message: error.message });
+        res.json({ "code": "ERROR", message: error.message });
     }
 });
 
 
-//Delete User Management..
-router.delete('/deleteUser/:id', async (req, res) => {
+
+router.put('/editUser/:id', async (req, res) => {
     try {
-        const removedUser = await User.remove({ _id: req.params.id });
-        res.json({"code":"OK", "data": removedUser});
-    } catch (error) {
-        res.json({"code": "ERROR", message: error.message });
+        const updateuser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json({ "code": "OK", "data": updateuser });
+    } catch (err) {
+        res.json(err);
     }
 });
-
 
 
 router.get('/getUsers', async (req, res) => {
     //let userdetails;
     let users;
     try {
-       // users = await User.find();
+        // users = await User.find();
         users = await User.aggregate([{
             $lookup: {
                 from: "userbrands",
@@ -115,7 +102,7 @@ router.get('/getUsers', async (req, res) => {
                 as: "userbrands"
             }
         },
-         {
+        {
             $lookup: {
                 from: "brands",
                 localField: "userbrands.brand",
@@ -125,14 +112,14 @@ router.get('/getUsers', async (req, res) => {
         },
         {
             $project: {
-             firstName: 1, 
-             lastName: 1,  
-             email: 1, 
-             isActive: 1,
-             brands: 1,
+                firstName: 1,
+                lastName: 1,
+                email: 1,
+                isActive: 1,
+                brands: 1,
             }
         }
-])
+        ])
         // let products = []
         // users.forEach((item) => {
         //     products.push(item.brands)
@@ -143,12 +130,11 @@ router.get('/getUsers', async (req, res) => {
 
         //console.log(userdetails);
         //console.log(users[0]);
-        res.json({"code": "OK", "data": users});
+        res.json({ "code": "OK", "data": users });
     } catch (error) {
-        res.json({"code": "ERROR", message: error.message });
+        res.json({ "code": "ERROR", message: error.message });
     }
 });
-
 
 
 router.put('/deactivateUser', async (req, res) => {
@@ -161,11 +147,22 @@ router.put('/deactivateUser', async (req, res) => {
             { $set: { "isActive": getUser } }
         );
         const getdeactiveUser = await User.findById(userinfo_id);
-        res.json({"code":"OK", "data": getdeactiveUser});
+        res.json({ "code": "OK", "data": getdeactiveUser });
     } catch (error) {
-        res.json({"code": "ERROR", message: error.message });
+        res.json({ "code": "ERROR", message: error.message });
     }
 });
+
+
+router.delete('/deleteUser/:id', async (req, res) => {
+    try {
+        const removedUser = await User.remove({ _id: req.params.id });
+        res.json({ "code": "OK", "data": removedUser });
+    } catch (error) {
+        res.json({ "code": "ERROR", message: error.message });
+    }
+});
+
 
 
 module.exports = router;

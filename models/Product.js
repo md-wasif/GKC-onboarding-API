@@ -13,22 +13,21 @@ const productSchema = new mongoose.Schema({
    },
    description: {
       type: String,
-      required: true
+      required: false
    },
-   img: { 
-      data: Buffer, 
-      contentType: String 
+   image: {
+      type: String,
+      required: false
    },
    isDeleted: {
       type: Boolean,
       default: false
    },
-   categories: {
-      type: Array,
-      default: [],
-    },
-   brand:{
+   brand: {
       type: mongoose.Schema.Types.ObjectId, ref: 'Brand'
+   },
+   category: {
+      type: mongoose.Schema.Types.ObjectId, ref: 'Category'
    }
 },
    {

@@ -11,9 +11,8 @@ const userBrandSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
-  restaurantURL: {
-    type: Array,
-    default: [],
+  restaurantUrl: {
+    type: Object,
   },
   user: {
     type: mongoose.Schema.Types.ObjectId, ref: 'User'
@@ -21,8 +20,8 @@ const userBrandSchema = new mongoose.Schema({
   brand: {
     type: mongoose.Schema.Types.ObjectId, ref: 'Brand'
   },
-  products: 
-    [{type: mongoose.Schema.Types.ObjectId, ref: 'Product'}],
+  products:
+    [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
 }, {
   timestamps: true
 });

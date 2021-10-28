@@ -5,6 +5,7 @@ const Brand = require('../models/Brand');
 const Cuisine = require('../models/Cuisine');
 const Product = require('../models/Product');
 const UserBrand = require('../models/UserBrand');
+const Category = require('../models/Category');
 const authVerification = require('../routes/verifyToken');
 
 const upload = require("../middleware/upload");
@@ -42,18 +43,12 @@ router.get('/getAllBrands', async (req, res) => {
             }
         }, {
             $unwind: "$brand"
-        // }, {
-        //     $group: {resutaurantName: "$restaurantURL"},
-        // },{
-        },{
+         },{
            $project: {
                 brand: 1,
                 products: 1,
                 user: 1,
-                // restaurantURL: {
-                //     restaurantName: "$restaurantURL" 
-                // },
-                restaurantURL: 1,
+                restaurantUrl: 1,
                 isActive: 1
            }
         }]);
@@ -71,7 +66,9 @@ router.get('/getCuisines', async (req, res) => {
         const cuisines = await Cuisine.aggregate([
             {
                 $project: {
-                    name: 1
+                    name: 1,
+                    image: 1,
+                    isDeleted: 1
                 }
             }
         ]);
@@ -85,13 +82,16 @@ router.get('/getCuisines', async (req, res) => {
 
 router.get('/getBrands', async (req, res) => {
 
-    var cuisine = mongoose.Types.ObjectId(req.query.cuisine);
+    var cuisine_Id = mongoose.Types.ObjectId(req.query.cuisineId);
     try {
         const brands = await Brand.aggregate([{
-            $match: { cuisine: cuisine }
+            $match: { cuisine: cuisine_Id }
         }, {
             $project: {
-                name: 1
+                name: 1,
+                description: 1,
+                image: 1,
+                isDeleted: 1
             }
         }])
         res.json({ "code": "OK", "data": brands });
@@ -101,52 +101,23 @@ router.get('/getBrands', async (req, res) => {
 });
 
 
-
-// router.get('/getProducts', async (req, res) => {
-
-//     var brand = mongoose.Types.ObjectId(req.query.brand);
-//     try{
-
-//         const categories = await Categorie.aggregate([{
-//             $match: { brand: brand },
-//         }, {
-//             $lookup: {
-//                 from: "products",
-//                 localField: "items",
-//                 foreignField: "_id",
-//                 as: "products"
-//             }
-//         }, {
-//             $unwind: "$products"
-//         }, {
-//             $project: {
-//                 name: {
-//                     "categoriesName": "$name"
-//                 },
-//                 name: 1,
-//                 products: 1
-//             }
-//         }])
-//         res.json({"code": "OK", "data": categories});
-//     }catch(error){
-//         res.json({"code": "ERROR", message: error.message});
-//     }
-// })
-
 router.get('/getProducts', async (req, res) => {
 
-    var brand = mongoose.Types.ObjectId(req.query.brand);
+    var brand_Id = mongoose.Types.ObjectId(req.query.brand);
+    // var category = mongoose.Types.ObjectId(req.query.category);
     try {
-        const products = await Product.aggregate([{
-            $unwind: "$categories"},
-            // {
-            // $group: { 
-            //     _id:{brand: "$categories.brand"}
-            // }},{
+        const products = await Category.aggregate([{
+            $match: { brand: brand_Id }},
             {
-            $match: { brand: brand }
-        },
-    ])
+                $lookup: {
+                    from: "products",
+                    localField: "_id",
+                    foreignField: "category",
+                    as: "items"
+                }
+            } 
+        ]);
+            
         res.json({ "code": "OK", "data": products });
     } catch (error) {
         res.json({ "code": "ERROR", message: error.message });
@@ -154,31 +125,7 @@ router.get('/getProducts', async (req, res) => {
 });
 
 
-// router.post('/createProduct', upload.single("file"), async (req, res) => {
-
-//     const brandId = mongoose.Types.ObjectId(req.query.brand);
-//     const imgUrl = `http://localhost:5000/${req.file.filename}`;
-//     console.log(brandId);
-//     console.log(imgUrl);
-//     const newProducts = await Product.create ({ 
-//         brand: brandId,
-//         productName: req.body.name,
-//         productPrice: req.body.price,
-//         description: req.body.description,
-//         img: req.body.imgUrl
-//     });
-//     try{
-//          const productDetails = await newProducts.save();
-//          console.log(productDetails);
-//          res.json(productDetails);
-//     }catch(error){
-//         res.json({message: error});
-//     }
-// });
-
-
-
-router.post('/createBrand', authVerification, async (req, res) => {
+router.post('/createBrand', async (req, res) => {
 
     const token = req.header('auth-token');
     const filterId = await parseJwt(token);
@@ -191,7 +138,7 @@ router.post('/createBrand', authVerification, async (req, res) => {
         user: userId,
         brand: req.body.brand,
         products: req.body.products,
-        restaurantURL: req.body.url,
+        restaurantUrl: req.body.url,
     });
     try {
         const userbrands = await newUser.save();
@@ -275,14 +222,14 @@ router.put('/editBrand', async (req, res) => {
 
 router.put('/toggleBrand', async (req, res) => {
 
-    var userinfo_id = mongoose.Types.ObjectId(req.query.userBrandId);
+    var userbrand_id = mongoose.Types.ObjectId(req.query.userBrand);
 
     try {
         const getUser = req.body.isActive;
-        await UserBrand.updateOne({ _id: userinfo_id },
+        await UserBrand.updateOne({ _id: userbrand_id },
             { $set: { "isActive": getUser } }
         );
-        const getdeactiveUserbrand = await UserBrand.findById(userinfo_id);
+        const getdeactiveUserbrand = await UserBrand.findById(userbrand_id);
         res.json({ "code": "OK", "data": getdeactiveUserbrand });
     } catch (error) {
         res.json({ "code": "ERROR", message: error.message });
