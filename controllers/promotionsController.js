@@ -42,24 +42,25 @@ router.post('/createUserPromotion', async (req, res) => {
     const token = req.header('auth-token');
     const filterId = await parseJwt(token);
     const userId = mongoose.Types.ObjectId(filterId.id)
-    try{
+    try {
         const userPromotion = new UserPromotion({
             user: userId,
             promotion: req.body.promotion_id
         })
         await userPromotion.save();
-    }catch(error){
-        res.json({"code": "ERROR", message: error.message})
+    } catch (error) {
+        res.json({ "code": "ERROR", message: error.message })
     }
 })
 
-router.get('/getAllPromotion', async (req, res) => {
+router.get('/getAllPromotions', async (req, res) => {
     const token = req.header('auth-token');
     const filterId = await parseJwt(token);
     const userId = mongoose.Types.ObjectId(filterId.id)
     try {
         const savedPromotion = await UserPromotion.aggregate([{
-            $match: { user: userId }},{
+            $match: { user: userId }
+        }, {
             $lookup: {
                 from: "promotions",
                 localField: "promotion",
@@ -68,17 +69,25 @@ router.get('/getAllPromotion', async (req, res) => {
             }
         }, {
             $unwind: "$promotions"
+        }, {
+            $project: {
+                promotions: 1,
+                startDate: 1,
+                endDate: 1,
+                isActive: 1,
+                isDeleted: 1,
+                user: 1
+            }
         }
-    ]);
-         let promotionArr = []
-         savedPromotion.forEach((item) => {
-             promotionArr.push(item.promotions)
-         })
-         savedPromotion[0].promotion = promotionArr
-         savedPromotion.splice(1);
-         const getPromotion = savedPromotion[0];
-        
-        res.json({ "code": "OK", "data": getPromotion });
+        ]);
+        let promotionArr = []
+        savedPromotion.forEach((item) => {
+            promotionArr.push(item.promotions)
+        })
+        savedPromotion[0].promotions = promotionArr
+        savedPromotion.splice(1);
+
+        res.json({ "code": "OK", "data": savedPromotion });
     } catch (error) {
         res.json({ "code": "Error", message: error.message })
     }
@@ -90,9 +99,9 @@ router.get('/getPromotion', async (req, res) => {
     // const token = req.header('auth-token');
     // const filterId = await parseJwt(token);
     // const userId = mongoose.Types.ObjectId(filterId.id)
-     const promotion_id = mongoose.Types.ObjectId(req.query.id);
+    const promotion_id = mongoose.Types.ObjectId(req.query.Id);
     try {
-        const saveDetails = await Promotion.findById({_id: promotion_id});
+        const saveDetails = await Promotion.findById({ _id: promotion_id });
         res.json({ "code": "OK", "data": saveDetails })
     } catch (error) {
         res.json({ "code": "ERROR", message: error.message });
@@ -107,17 +116,17 @@ router.put('/activeUserPromotion', async (req, res) => {
     const filterId = await parseJwt(token);
     const userId = mongoose.Types.ObjectId(filterId.id)
     var promotion_id = mongoose.Types.ObjectId(req.query.Id);
-    var gettogglePromotion;
+    
     try {
-        const getData = req.body.isActive;
+         const getData = req.body.isActive;
          const getNumber = req.body.input;
-        gettogglePromotion = await UserPromotion.updateOne({
-            $match: { user: userId, promotion: promotion_id }},
-            //{$set: { "endDate": getNumber * 7 * 24 * 60 * 60000}}
-            [{ $set: {"isActive": getData, endDate: { $add: ["$endDate", getNumber*7*24*60*60000] }}}],
+        await UserPromotion.updateOne({
+            user: userId, _id: promotion_id },
+            //{$set: { "endDate":  7 * 24 * 60 * 60000}}
+            [{ $set: { "isActive": getData, endDate: { $add: ["$endDate", getNumber * 7 * 24 * 60 * 60000] } } }],
         )
-      
-        const getdeactiveUser = await UserPromotion.findOne({gettogglePromotion});
+
+        const getdeactiveUser = await UserPromotion.findById(promotion_id);
         res.json({ "code": "OK", "data": getdeactiveUser });
     } catch (error) {
         res.json({ "code": "ERROR", message: error.message });
