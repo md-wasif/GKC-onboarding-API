@@ -53,6 +53,19 @@ router.post('/createUserPromotion', async (req, res) => {
     }
 })
 
+
+router.get('/getPromotions', async (req, res) => {
+
+    try{
+
+        const getAllPromotions = await Promotion.find({});
+        res.json({"code": "OK", "data": getAllPromotions});
+    }catch(error){
+        res.json({"code": "ERROR", message: error.message});
+    }
+});
+
+
 router.get('/getAllPromotions', async (req, res) => {
     const token = req.header('auth-token');
     const filterId = await parseJwt(token);
