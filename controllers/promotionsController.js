@@ -79,8 +79,8 @@ router.get('/getAllPromotions', async (req, res) => {
         getPromotions.forEach((promo) => {
             if (promo.userpromotions.length != 0) {
                 promo.isActive = promo.userpromotions[0].isActive;
-                promo.startDate = promo.userpromotions[0].startdDate;
-                promo.endDate = promo.userpromotions[0].enddDate;
+                promo.startDate = promo.userpromotions[0].startDate;
+                promo.endDate = promo.userpromotions[0].endDate;
             }
         })
         res.json({ "code": "OK", "data": getPromotions });
@@ -174,13 +174,13 @@ router.post('/activeUserPromotion', async (req, res) => {
             )
         }
         else{
-            const userPromotion = new UserPromotion({
+             userpromotion_id = new UserPromotion({
                 user: userId,
                 promotion: promotion_id,
                 isActive: getData
                 // endDate: getNumber * 7 * 24 * 60 * 60000
             })
-            await userPromotion.save();
+            await userpromotion_id.save();
         }
         
         const getdeactiveUser = await UserPromotion.findById(userpromotion_id);
