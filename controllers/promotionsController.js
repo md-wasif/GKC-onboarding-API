@@ -30,7 +30,7 @@ router.post('/createPromotion', async (req, res) => {
     })
     try {
         const savePromotion = await promotion.save();
-        res.json({ "code": "OK", "message": "Create Promotion Sussfully." })
+        res.json({ "code": "OK", "message": "Create Promotion Sucessfully." })
     } catch (error) {
         res.json({ "code": "Error", message: error.message });
     }
@@ -70,6 +70,8 @@ router.get('/getAllPromotions', async (req, res) => {
                 description: 1,
                 isActive: 1,
                 isDeleted: 1,
+                startDate: 1,
+                endDate: 1,
                 userpromotions: 1
             }
         }])
