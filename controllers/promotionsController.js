@@ -160,11 +160,10 @@ router.post('/activeUserPromotion', async (req, res) => {
     const getNumber = req.body.input;
     var userpromotion_id;
     try {
-        const getuserPromotion = await UserPromotion.findOne({ promotion: { $exists: true } });
+        const getuserPromotion = await UserPromotion.findOne({ promotion: promotion_id});
         if(getuserPromotion != undefined && getuserPromotion.length != 0){
 
              userpromotion_id = getuserPromotion._id;
-             console.log(userpromotion_id);
             await UserPromotion.updateOne({
                 user: userId,
                  _id: userpromotion_id
