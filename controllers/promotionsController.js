@@ -154,25 +154,31 @@ router.post('/activeUserPromotion', async (req, res) => {
     var promotion_id = mongoose.Types.ObjectId(req.query.Id);
     const getData = req.body.isActive;
     const getNumber = req.body.input;
+    var userpromotion_id;
     try {
-
-        const userPromotion = new UserPromotion({
-            user: userId,
-            promotion: promotion_id
-        })
         const getuserPromotion = await UserPromotion.findOne({ promotion: { $exists: true } });
-        if (getuserPromotion.length == 0) {
+        if(getuserPromotion != undefined && getuserPromotion.length != 0){
+
+             userpromotion_id = getuserPromotion._id;
+             console.log(userpromotion_id);
+            await UserPromotion.updateOne({
+                user: userId,
+                 _id: userpromotion_id
+            },
+                //{$set: { "endDate":  7 * 24 * 60 * 60000}}
+                [{ $set: { "isActive": getData, endDate: { $add: ["$endDate", getNumber * 7 * 24 * 60 * 60000] } } }],
+            )
+        }
+        else{
+            const userPromotion = new UserPromotion({
+                user: userId,
+                promotion: promotion_id,
+                isActive: getData
+                // endDate: getNumber * 7 * 24 * 60 * 60000
+            })
             await userPromotion.save();
         }
-        //  console.log(getuserPromotion);
-        const userpromotion_id = getuserPromotion._id;
-        await UserPromotion.updateOne({
-            user: userId, _id: userpromotion_id
-        },
-            //{$set: { "endDate":  7 * 24 * 60 * 60000}}
-            [{ $set: { "isActive": getData, endDate: { $add: ["$endDate", getNumber * 7 * 24 * 60 * 60000] } } }],
-        )
-
+        
         const getdeactiveUser = await UserPromotion.findById(userpromotion_id);
         res.json({ "code": "OK", "data": getdeactiveUser });
     } catch (error) {
