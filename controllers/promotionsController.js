@@ -52,24 +52,38 @@ router.post('/createPromotion', async (req, res) => {
 
 router.get('/getAllPromotions', async (req, res) => {
 
-        // const token = req.header('auth-token');
-        // const filterId = await parseJwt(token);
-        // const userId = mongoose.Types.ObjectId(filterId.id)
-        try{
+    // const token = req.header('auth-token');
+    // const filterId = await parseJwt(token);
+    // const userId = mongoose.Types.ObjectId(filterId.id)
+    try {
 
-           const getPromotions =  await Promotion.aggregate([{
-                $lookup: {
-                    from: "userpromotions",
-                    localField: "_id",
-                    foreignField: "promotion",
-                    as: "userpromotions"
-                }
-            }])
-            res.json({"code": "OK", "data": getPromotions});
-        }catch(error){
-            res.json({"code": "ERROR", message: error.message});
-        }
-       
+        const getPromotions = await Promotion.aggregate([{
+            $lookup: {
+                from: "userpromotions",
+                localField: "_id",
+                foreignField: "promotion",
+                as: "userpromotions"
+            }
+        }, {
+            $project: {
+                name: 1,
+                description: 1,
+                isActive: 1,
+                isDeleted: 1,
+                userpromotions: 1
+            }
+        }])
+
+        getPromotions.forEach((promo) => {
+            if (promo.userpromotions.length != 0) {
+                promo.isActive = promo.userpromotions[0].isActive;
+            }
+        })
+        res.json({ "code": "OK", "data": getPromotions });
+    } catch (error) {
+        res.json({ "code": "ERROR", message: error.message });
+    }
+
 });
 
 // router.get('/getAllPromotions', async (req, res) => {
@@ -78,7 +92,7 @@ router.get('/getAllPromotions', async (req, res) => {
 //     const userId = mongoose.Types.ObjectId(filterId.id)
 //     try {
 //         //const getAllPromotions = await Promotion.find({});
-        
+
 
 //         const savedPromotion = await UserPromotion.aggregate([{
 //             $match: { user: userId }
@@ -141,16 +155,20 @@ router.post('/activeUserPromotion', async (req, res) => {
     const getData = req.body.isActive;
     const getNumber = req.body.input;
     try {
-        
+
         const userPromotion = new UserPromotion({
             user: userId,
-             promotion: promotion_id
+            promotion: promotion_id
         })
-         const getuserPromotion = await userPromotion.save();
+        const getuserPromotion = await UserPromotion.findOne({ promotion: { $exists: true } });
+        if (getuserPromotion.length == 0) {
+            await userPromotion.save();
+        }
         //  console.log(getuserPromotion);
-         const userpromotion_id = getuserPromotion._id;
+        const userpromotion_id = getuserPromotion._id;
         await UserPromotion.updateOne({
-            user: userId, _id: userpromotion_id },
+            user: userId, _id: userpromotion_id
+        },
             //{$set: { "endDate":  7 * 24 * 60 * 60000}}
             [{ $set: { "isActive": getData, endDate: { $add: ["$endDate", getNumber * 7 * 24 * 60 * 60000] } } }],
         )
