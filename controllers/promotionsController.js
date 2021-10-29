@@ -77,6 +77,8 @@ router.get('/getAllPromotions', async (req, res) => {
         getPromotions.forEach((promo) => {
             if (promo.userpromotions.length != 0) {
                 promo.isActive = promo.userpromotions[0].isActive;
+                promo.startDate = promo.userpromotions[0].startdDate;
+                promo.endDate = promo.userpromotions[0].enddDate;
             }
         })
         res.json({ "code": "OK", "data": getPromotions });

@@ -10,6 +10,14 @@ const promotionSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    startDate: {
+        type: Date,
+        default: Date.now
+    },
+    endDate: {
+        type: Date,
+        default: Date.now
+    },
     image: {
         type: String,
         required: false
