@@ -52,7 +52,7 @@ router.get('/getUser', async (req, res) => {
     let checkBrand;
     try {
 
-        getuserDetails = await User.findOne({ _id: userinfo_Id }, {_id: 1, firstName: 1, lastName: 1, isActive: 1});
+        getuserDetails = await User.findOne({ _id: userinfo_Id }, {_id: 1, firstName: 1, lastName: 1, email: 1, isActive: 1});
         checkBrand = await UserBrand.aggregate([{
             $match: { user: userinfo_Id }
         }, {
