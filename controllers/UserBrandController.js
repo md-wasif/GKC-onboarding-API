@@ -2,36 +2,26 @@ const mongoose = require('mongoose');
 const router = require('express').Router();
 const atob = require('atob');
 const bcrypt = require('bcrypt');
-
+const verify = require('../utils/verifyToken');
 
 
 const User = require('../models/User');
 const UserBrand = require('../models/UserBrand');
 
 
-const parseJwt = async (token) => {
-    var base64Url = token.split('.')[1];
-    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-    return JSON.parse(jsonPayload);
-};
 
 
+router.post('/createUser', verify, async (req, res) => {
 
-router.post('/createUser', async (req, res) => {
-
-    const token = req.header('auth-token');
-    const filterId = await parseJwt(token);
-    const userId = filterId.id;
-
-
+    // const token = req.header('auth-token');
+    // const filterId = await parseJwt(token);
+    // const userId = filterId.id;
+    // const userId = await tokenuserFilter();
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
     const user = new User({
-        profile: userId,
+        // profile: userId,
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
@@ -39,11 +29,12 @@ router.post('/createUser', async (req, res) => {
     });
     try {
         const savedUser = await user.save();
-        res.json({ "code": "OK", "message": "Create User Sussfully." });
+        res.json({ "code": "OK", "message": "Create User Sucessfully." });
     } catch (error) {
         res.json({ "code": "ERROR", message: error.message });
     }
 });
+
 
 
 router.get('/getUser', async (req, res) => {
@@ -52,7 +43,7 @@ router.get('/getUser', async (req, res) => {
     let checkBrand;
     try {
 
-        getuserDetails = await User.findOne({ _id: userinfo_Id }, {_id: 1, firstName: 1, lastName: 1, email: 1, isActive: 1});
+        getuserDetails = await User.findOne({ _id: userinfo_Id }, { _id: 1, firstName: 1, lastName: 1, email: 1, isActive: 1 });
         checkBrand = await UserBrand.aggregate([{
             $match: { user: userinfo_Id }
         }, {
@@ -87,6 +78,7 @@ router.put('/editUser/:id', async (req, res) => {
         res.json(err);
     }
 });
+
 
 
 router.get('/getUsers', async (req, res) => {
@@ -135,6 +127,7 @@ router.get('/getUsers', async (req, res) => {
         res.json({ "code": "ERROR", message: error.message });
     }
 });
+
 
 
 router.put('/deactivateUser', async (req, res) => {

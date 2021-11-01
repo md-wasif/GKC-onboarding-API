@@ -3,8 +3,8 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const bcrypt = require('bcrypt');
-const { registerValidation, loginValidation } = require('../validation');
-const config = require('../token'); //get config file.
+const { registerValidation, loginValidation } = require('../utils/validation');
+const config = require('../config/token'); 
 
 
 //Register
@@ -35,6 +35,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
+
 //Login
 router.post('/login', async (req, res) => {
 
@@ -49,7 +50,7 @@ router.post('/login', async (req, res) => {
       "type": "Wrong Email",
       "message": "Email entered is wrong"
     }
-  }); //.send('Email or password is incorrect!');
+  }); 
 
   const validpass = await bcrypt.compare(req.body.password, user.password);
   if (!validpass) return res.status(400).json({
@@ -63,18 +64,17 @@ router.post('/login', async (req, res) => {
   const token = jwt.sign({ id: user._id }, config.secret, {
     expiresIn: 86400 // expires in 24 hours
   });
-  // return the information including token as JSON
+  
+
   res.header('auth-token', token).json({
     "code": "OK",
     "data": {
       "auth": true,
       "token": token
     }
-  }); //.send({ auth: true, token });
-  //res.status(200).send({ auth: true, token: token });
-
-  //res.status(200).send('Login Done');
+  }); 
 });
+
 
 //Logout
 router.get('/logout', async (req, res) => {
@@ -84,7 +84,7 @@ router.get('/logout', async (req, res) => {
       "auth": false,
       "token": null
     }
-  }); //.send({auth: false, token: null});
+  }); 
 });
 
 //const token = jwt.sign({_id: user._id}, process.env.TOKEN_SECRET);

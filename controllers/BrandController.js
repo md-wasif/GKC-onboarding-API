@@ -6,7 +6,7 @@ const Cuisine = require('../models/Cuisine');
 const Product = require('../models/Product');
 const UserBrand = require('../models/UserBrand');
 const Category = require('../models/Category');
-const authVerification = require('../routes/verifyToken');
+const verify = require('../utils/verifyToken');
 
 const upload = require("../middleware/upload");
 
@@ -23,8 +23,9 @@ const parseJwt = async (token) => {
 
 
 
-router.get('/getAllBrands', async (req, res) => {
+router.get('/getAllBrands', verify, async (req, res) => {
 
+    // userId = await tokenuserFilter();
     const token = req.header('auth-token');
     const filterId = await parseJwt(token);
     const userId = mongoose.Types.ObjectId(filterId.id)
@@ -43,14 +44,14 @@ router.get('/getAllBrands', async (req, res) => {
             }
         }, {
             $unwind: "$brand"
-         },{
-           $project: {
+        }, {
+            $project: {
                 brand: 1,
                 products: 1,
                 user: 1,
                 restaurantUrl: 1,
                 isActive: 1
-           }
+            }
         }]);
         res.json({ "code": "OK", "data": userBrands });
     } catch (error) {
@@ -101,23 +102,25 @@ router.get('/getBrands', async (req, res) => {
 });
 
 
+
 router.get('/getProducts', async (req, res) => {
 
     var brand_Id = mongoose.Types.ObjectId(req.query.brand);
     // var category = mongoose.Types.ObjectId(req.query.category);
     try {
         const products = await Category.aggregate([{
-            $match: { brand: brand_Id }},
-            {
-                $lookup: {
-                    from: "products",
-                    localField: "_id",
-                    foreignField: "category",
-                    as: "items"
-                }
-            } 
+            $match: { brand: brand_Id }
+        },
+        {
+            $lookup: {
+                from: "products",
+                localField: "_id",
+                foreignField: "category",
+                as: "items"
+            }
+        }
         ]);
-            
+
         res.json({ "code": "OK", "data": products });
     } catch (error) {
         res.json({ "code": "ERROR", message: error.message });
@@ -125,12 +128,14 @@ router.get('/getProducts', async (req, res) => {
 });
 
 
-router.post('/createBrand', async (req, res) => {
+
+router.post('/createBrand', verify, async (req, res) => {
 
     const token = req.header('auth-token');
     const filterId = await parseJwt(token);
     const userId = filterId.id;
 
+    // userId = await tokenuserFilter();
     const brandExist = await UserBrand.findOne({ brand: req.body.brand, user: userId });
     if (brandExist) return res.status(200).send({ "code": "OK", "message": "Brand already exists.." });
 
@@ -147,7 +152,6 @@ router.post('/createBrand', async (req, res) => {
         res.json({ "code": "ERROR", message: error.message });
     }
 });
-
 
 
 

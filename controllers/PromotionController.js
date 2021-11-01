@@ -1,11 +1,13 @@
 const mongoose = require('mongoose');
 const router = require('express').Router();
 const atob = require('atob');
+const moment = require('moment');
 
+
+const verify = require('../utils/verifyToken');
 
 
 const Promotion = require('../models/Promotion');
-// const Category = require('../models/Category');
 const UserPromotion = require('../models/UserPromotion');
 
 
@@ -38,23 +40,8 @@ router.post('/createPromotion', async (req, res) => {
 
 
 
-// router.get('/getPromotions', async (req, res) => {
-
-//     try{
-
-//         const getAllPromotions = await Promotion.find({});
-//         res.json({"code": "OK", "data": getAllPromotions});
-//     }catch(error){
-//         res.json({"code": "ERROR", message: error.message});
-//     }
-// });
-
-
 router.get('/getAllPromotions', async (req, res) => {
 
-    // const token = req.header('auth-token');
-    // const filterId = await parseJwt(token);
-    // const userId = mongoose.Types.ObjectId(filterId.id)
     try {
 
         const getPromotions = await Promotion.aggregate([{
@@ -65,6 +52,17 @@ router.get('/getAllPromotions', async (req, res) => {
                 as: "userpromotions"
             }
         }, {
+            $unwind: {
+                path: "$userpromotions",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        // },{$group: {
+        //      _id: {
+        //          userpromo: "$userpromotions", name: "$name", description: "$description", isActive: "$isActive"
+        //      }  
+        // }},
+        {
             $project: {
                 name: 1,
                 description: 1,
@@ -75,14 +73,6 @@ router.get('/getAllPromotions', async (req, res) => {
                 userpromotions: 1
             }
         }])
-
-        getPromotions.forEach((promo) => {
-            if (promo.userpromotions.length != 0) {
-                promo.isActive = promo.userpromotions[0].isActive;
-                promo.startDate = promo.userpromotions[0].startDate;
-                promo.endDate = promo.userpromotions[0].endDate;
-            }
-        })
         res.json({ "code": "OK", "data": getPromotions });
     } catch (error) {
         res.json({ "code": "ERROR", message: error.message });
@@ -90,48 +80,6 @@ router.get('/getAllPromotions', async (req, res) => {
 
 });
 
-// router.get('/getAllPromotions', async (req, res) => {
-//     const token = req.header('auth-token');
-//     const filterId = await parseJwt(token);
-//     const userId = mongoose.Types.ObjectId(filterId.id)
-//     try {
-//         //const getAllPromotions = await Promotion.find({});
-
-
-//         const savedPromotion = await UserPromotion.aggregate([{
-//             $match: { user: userId }
-//         }, {
-//             $lookup: {
-//                 from: "promotions",
-//                 localField: "promotion",
-//                 foreignField: "_id",
-//                 as: "promotions"
-//             }
-//         }, {
-//             $unwind: "$promotions"
-//         }, {
-//             $project: {
-//                 promotions: 1,
-//                 startDate: 1,
-//                 endDate: 1,
-//                 isActive: 1,
-//                 isDeleted: 1,
-//                 user: 1
-//             }
-//         }
-//         ]);
-//         let promotionArr = []
-//         savedPromotion.forEach((item) => {
-//             promotionArr.push(item.promotions)
-//         })
-//         savedPromotion[0].promotions = promotionArr
-//         savedPromotion.splice(1);
-
-//         res.json({ "code": "OK", "data": savedPromotion });
-//     } catch (error) {
-//         res.json({ "code": "Error", message: error.message })
-//     }
-// });
 
 
 router.get('/getPromotion', async (req, res) => {
@@ -160,28 +108,28 @@ router.post('/activeUserPromotion', async (req, res) => {
     const getNumber = req.body.input;
     var userpromotion_id;
     try {
-        const getuserPromotion = await UserPromotion.findOne({ promotion: promotion_id});
-        if(getuserPromotion != undefined && getuserPromotion.length != 0){
+        const getuserPromotion = await UserPromotion.findOne({ promotion: promotion_id });
+        if (getuserPromotion != undefined && getuserPromotion.length != 0) {
 
-             userpromotion_id = getuserPromotion._id;
+            userpromotion_id = getuserPromotion._id;
             await UserPromotion.updateOne({
                 user: userId,
-                 _id: userpromotion_id
+                _id: userpromotion_id
             },
-                //{$set: { "endDate":  7 * 24 * 60 * 60000}}
-                [{ $set: { "isActive": getData, endDate: { $add: ["$endDate", getNumber * 7 * 24 * 60 * 60000] } } }],
+                { $set: { "isActive": getData, "endDate": moment().add(getNumber, 'weeks').format("DD/MM/YYYY") } }
+                // [{ $set: { "isActive": getData, endDate: { $add: ["$endDate", getNumber * 7 * 24 * 60 * 60000] } } }],
             )
         }
-        else{
-             userpromotion_id = new UserPromotion({
+        else {
+            userpromotion_id = new UserPromotion({
                 user: userId,
                 promotion: promotion_id,
-                isActive: getData
-                // endDate: getNumber * 7 * 24 * 60 * 60000
+                isActive: getData,
+                endDate: moment().add(getNumber, 'weeks').format("DD/MM/YYYY")
             })
             await userpromotion_id.save();
         }
-        
+
         const getdeactiveUser = await UserPromotion.findById(userpromotion_id);
         res.json({ "code": "OK", "data": getdeactiveUser });
     } catch (error) {

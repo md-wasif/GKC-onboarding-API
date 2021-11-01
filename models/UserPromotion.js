@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const moment = require('moment');
 
 
 const userpromotionSchema = new mongoose.Schema({
@@ -8,12 +9,12 @@ const userpromotionSchema = new mongoose.Schema({
         default: false
      },
      startDate: {
-         type: Date,
-         default: Date.now
+         type: String,
+          default: moment().format('DD/MM/YYYY')
      },
      endDate: {
-         type: Date,
-         default: Date.now
+         type: String,
+          default: moment().format('DD/MM/YYYY')
      },
      isActive: {
          type: Boolean,

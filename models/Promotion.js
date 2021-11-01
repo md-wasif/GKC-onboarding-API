@@ -14,14 +14,6 @@ const promotionSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-    startDate: {
-        type: Date,
-        default: Date.now
-    },
-    endDate: {
-        type: Date,
-        default: Date.now
-    },
     isDeleted: {
         type: Boolean,
         default: false
