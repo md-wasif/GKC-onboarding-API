@@ -73,7 +73,29 @@ router.get('/getAllPromotions', async (req, res) => {
                 userpromotions: 1
             }
         }])
-        res.json({ "code": "OK", "data": getPromotions });
+
+        var obj = [];
+        getPromotions.forEach((promo) => {
+            //  console.log(promo.name);
+            if(promo.userpromotions){
+                 obj.push({
+                     'name' : promo.name, 
+                    'description': promo.description,
+                    'isActive': promo.userpromotions.isActive,
+                    'startDate' : promo.userpromotions.startDate,
+                    'endDate' :promo.userpromotions.endDate});
+            }
+            else{
+                obj.push({
+                    'name' : promo.name, 
+                    'description': promo.description,
+                    'isActive': promo.isActive,
+                    'startDate': '',
+                    'endDate': ''})
+                };
+        })
+        //console.log(obj);
+        res.json({ "code": "OK", "data": obj });
     } catch (error) {
         res.json({ "code": "ERROR", message: error.message });
     }
