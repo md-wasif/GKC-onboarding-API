@@ -79,6 +79,7 @@ router.get('/getAllPromotions', async (req, res) => {
             //  console.log(promo.name);
             if(promo.userpromotions){
                  obj.push({
+                     '_id': promo._id,
                      'name' : promo.name, 
                     'description': promo.description,
                     'isActive': promo.userpromotions.isActive,
@@ -87,6 +88,7 @@ router.get('/getAllPromotions', async (req, res) => {
             }
             else{
                 obj.push({
+                    '_id': promo._id,
                     'name' : promo.name, 
                     'description': promo.description,
                     'isActive': promo.isActive,
