@@ -62,17 +62,17 @@ router.get('/getAllPromotions', async (req, res) => {
         //          userpromo: "$userpromotions", name: "$name", description: "$description", isActive: "$isActive"
         //      }  
         // }},
-        {
-            $project: {
-                name: 1,
-                description: 1,
-                isActive: 1,
-                isDeleted: 1,
-                startDate: 1,
-                endDate: 1,
-                userpromotions: 1
-            }
-        }])
+        // {
+        //     $project: {
+        //         name: 1,
+        //         description: 1,
+        //         isActive: 1,
+        //         isDeleted: 1,
+        //         startDate: 1,
+        //         endDate: 1,
+        //         userpromotions: 1
+        //     }
+        ])
 
         var obj = [];
         getPromotions.forEach((promo) => {
