@@ -74,14 +74,14 @@ router.get('/getAllPromotions', verify, async (req, res) => {
         //         // isActive: 1
         //     }
         // },
-        // {
-        //     $match: {
-        //         isActive: true,
-        //         isDeleted: false,
-        //         "userpromotions.user": userId,
-        //          "userpromotions.endDate": {$gt: new Date()},
-        //           "userpromotions.isActive": true,
-        // }}
+        {
+            $match: {
+                //isActive: true,
+               // isDeleted: false,
+                "userpromotions.user": userId,
+                 "userpromotions.endDate": {$gt: new Date()},
+                //  "userpromotions.isActive": true,
+        }}
         // {$group: {
         //      _id: {
         //          userpromo: "$userpromotions", name: "$name", description: "$description", isActive: "$isActive"
