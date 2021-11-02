@@ -1,34 +1,22 @@
 const mongoose = require('mongoose');
-const atob = require('atob');
 const router = require('express').Router();
 const Brand = require('../models/Brand');
 const Cuisine = require('../models/Cuisine');
 const Product = require('../models/Product');
 const UserBrand = require('../models/UserBrand');
 const Category = require('../models/Category');
-const verify = require('../utils/verifyToken');
+const verify = require('../middleware/verifyToken');
+const {userTokenFilter} = require('../utils/userFilter');
 
 const upload = require("../middleware/upload");
 
-
-const parseJwt = async (token) => {
-    var base64Url = token.split('.')[1];
-    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-    //console.log(jsonPayload);
-    return JSON.parse(jsonPayload);
-};
 
 
 
 router.get('/getAllBrands', verify, async (req, res) => {
 
-    // userId = await tokenuserFilter();
     const token = req.header('auth-token');
-    const filterId = await parseJwt(token);
-    const userId = mongoose.Types.ObjectId(filterId.id)
+    const userId = await userTokenFilter(token);
     var userBrands;
     try {
 
@@ -61,7 +49,7 @@ router.get('/getAllBrands', verify, async (req, res) => {
 
 
 
-router.get('/getCuisines', async (req, res) => {
+router.get('/getCuisines', verify, async (req, res) => {
 
     try {
         const cuisines = await Cuisine.aggregate([
@@ -81,7 +69,7 @@ router.get('/getCuisines', async (req, res) => {
 
 
 
-router.get('/getBrands', async (req, res) => {
+router.get('/getBrands', verify, async (req, res) => {
 
     var cuisine_Id = mongoose.Types.ObjectId(req.query.cuisineId);
     try {
@@ -103,7 +91,7 @@ router.get('/getBrands', async (req, res) => {
 
 
 
-router.get('/getProducts', async (req, res) => {
+router.get('/getProducts', verify, async (req, res) => {
 
     var brand_Id = mongoose.Types.ObjectId(req.query.brand);
     // var category = mongoose.Types.ObjectId(req.query.category);
@@ -132,10 +120,7 @@ router.get('/getProducts', async (req, res) => {
 router.post('/createBrand', verify, async (req, res) => {
 
     const token = req.header('auth-token');
-    const filterId = await parseJwt(token);
-    const userId = filterId.id;
-
-    // userId = await tokenuserFilter();
+    const userId = await userTokenFilter(token);
     const brandExist = await UserBrand.findOne({ brand: req.body.brand, user: userId });
     if (brandExist) return res.status(200).send({ "code": "OK", "message": "Brand already exists.." });
 
@@ -155,7 +140,7 @@ router.post('/createBrand', verify, async (req, res) => {
 
 
 
-router.get('/viewBrand', async (req, res) => {
+router.get('/viewBrand', verify, async (req, res) => {
 
     var userBrandId = mongoose.Types.ObjectId(req.query.userBrand);
     var userbrands;
@@ -208,7 +193,7 @@ router.get('/viewBrand', async (req, res) => {
 
 
 
-router.put('/editBrand', async (req, res) => {
+router.put('/editBrand', verify, async (req, res) => {
 
     var userbrandId = mongoose.Types.ObjectId(req.query.userBrand);
     try {
@@ -224,7 +209,7 @@ router.put('/editBrand', async (req, res) => {
 });
 
 
-router.put('/toggleBrand', async (req, res) => {
+router.put('/toggleBrand', verify, async (req, res) => {
 
     var userbrand_id = mongoose.Types.ObjectId(req.query.userBrand);
 

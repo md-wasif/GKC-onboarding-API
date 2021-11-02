@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 const router = require('express').Router();
-const atob = require('atob');
 const moment = require('moment');
+const {userTokenFilter} = require('../utils/userFilter');
 
 
-const verify = require('../utils/verifyToken');
+const verify = require('../middleware/verifyToken');
 
 
 const Promotion = require('../models/Promotion');
@@ -12,18 +12,8 @@ const UserPromotion = require('../models/UserPromotion');
 
 
 
-const parseJwt = async (token) => {
-    var base64Url = token.split('.')[1];
-    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-    //console.log(jsonPayload);
-    return JSON.parse(jsonPayload);
-};
 
-
-router.post('/createPromotion', async (req, res) => {
+router.post('/createPromotion', verify, async (req, res) => {
 
     const promotion = new Promotion({
         // user: userId,
@@ -40,11 +30,13 @@ router.post('/createPromotion', async (req, res) => {
 
 
 
-router.get('/getAllPromotions', async (req, res) => {
+router.get('/getAllPromotions', verify, async (req, res) => {
 
+    const token = req.header('auth-token');
+    const userId = await userTokenFilter(token);
     try {
 
-        const getPromotions = await Promotion.aggregate([{
+        const promotions = await Promotion.aggregate([{
             $lookup: {
                 from: "userpromotions",
                 localField: "_id",
@@ -57,47 +49,79 @@ router.get('/getAllPromotions', async (req, res) => {
                 preserveNullAndEmptyArrays: true
             }
         },
-        // },{$group: {
+        {
+            $project: {
+                endDate: {
+                    $dateToString: {
+                        format: "%Y-%m-%d",
+                        date: "$userpromotions.endDate"
+                    }
+                }, startDate: {
+                    $dateToString: {
+                        format: "%Y-%m-%d",
+                        date: "$userpromotions.startDate"
+                    }
+                },
+                name: 1,
+                description: 1,
+                isActive: 1,
+                userpromotions: 1
+            }
+        },
+        //         userpromotions: 1,
+        //         name: 1,
+        //         description:1,
+        //         // isActive: 1
+        //     }
+        // },
+        // {
+        //     $match: {
+        //         isActive: true,
+        //         isDeleted: false,
+        //         "userpromotions.user": userId,
+        //          "userpromotions.endDate": {$gt: new Date()},
+        //           "userpromotions.isActive": true,
+        // }}
+        // {$group: {
         //      _id: {
         //          userpromo: "$userpromotions", name: "$name", description: "$description", isActive: "$isActive"
         //      }  
-        // }},
-        // {
+        // }},{
         //     $project: {
-        //         name: 1,
-        //         description: 1,
-        //         isActive: 1,
-        //         isDeleted: 1,
-        //         startDate: 1,
-        //         endDate: 1,
-        //         userpromotions: 1
+        //         endDate: {
+        //                          $dateToString: {
+        //                              format: "%Y-%m-%d",
+        //                              date: "$userpromo.endDate"
+        //                          }
+        //                      },
         //     }
-        ])
+        // }
+       ])
 
-        var obj = [];
-        getPromotions.forEach((promo) => {
-            //  console.log(promo.name);
-            if(promo.userpromotions){
-                 obj.push({
-                     '_id': promo._id,
-                     'name' : promo.name, 
-                    'description': promo.description,
-                    'isActive': promo.userpromotions.isActive,
-                    'startDate' : promo.userpromotions.startDate,
-                    'endDate' :promo.userpromotions.endDate});
-            }
-            else{
-                obj.push({
-                    '_id': promo._id,
-                    'name' : promo.name, 
-                    'description': promo.description,
-                    'isActive': promo.isActive,
-                    'startDate': '',
-                    'endDate': ''})
-                };
-        })
+        // var obj = [];
+        // getPromotions.forEach((promo) => {
+        //     //  console.log(promo.name);
+        //     if(promo.userpromotions){
+        //          obj.push({
+        //              '_id': promo._id,
+        //              'name' : promo.name, 
+        //             'description': promo.description,
+        //             'isActive': promo.userpromotions.isActive,
+        //             'startDate' : promo.userpromotions.startDate,
+        //             'endDate' :promo.userpromotions.endDate});
+        //     }
+        //     else{
+        //         obj.push({
+        //             '_id': promo._id,
+        //             'name' : promo.name, 
+        //             'description': promo.description,
+        //             'isActive': promo.isActive,
+        //             'startDate': '',
+        //             'endDate': ''})
+        //         };
+        // })
         //console.log(obj);
-        res.json({ "code": "OK", "data": obj });
+        res.json({ "code": "OK", "data": promotions });
     } catch (error) {
         res.json({ "code": "ERROR", message: error.message });
     }
@@ -106,7 +130,7 @@ router.get('/getAllPromotions', async (req, res) => {
 
 
 
-router.get('/getPromotion', async (req, res) => {
+router.get('/getPromotion', verify, async (req, res) => {
 
     // const token = req.header('auth-token');
     // const filterId = await parseJwt(token);
@@ -125,8 +149,7 @@ router.get('/getPromotion', async (req, res) => {
 router.post('/activeUserPromotion', async (req, res) => {
 
     const token = req.header('auth-token');
-    const filterId = await parseJwt(token);
-    const userId = mongoose.Types.ObjectId(filterId.id)
+    const userId = await userTokenFilter(token);
     var promotion_id = mongoose.Types.ObjectId(req.query.Id);
     const getData = req.body.isActive;
     const getNumber = req.body.input;
@@ -140,18 +163,18 @@ router.post('/activeUserPromotion', async (req, res) => {
                 user: userId,
                 _id: userpromotion_id
             },
-                { $set: { "isActive": getData, "endDate": moment().add(getNumber, 'weeks').format("DD/MM/YYYY") } }
+                { $set: { "isActive": getData, "endDate": moment().add(7*parseInt(getNumber), 'd').format('YYYY-MM-DD 00:00:00')} }
                 // [{ $set: { "isActive": getData, endDate: { $add: ["$endDate", getNumber * 7 * 24 * 60 * 60000] } } }],
             )
         }
         else {
-            userpromotion_id = new UserPromotion({
+            userpromotion_id = await UserPromotion.create({
                 user: userId,
                 promotion: promotion_id,
                 isActive: getData,
-                endDate: moment().add(getNumber, 'weeks').format("DD/MM/YYYY")
+                startDate: moment().format('YYYY-MM-DD 00:00:00'),
+                endDate: moment().add(7*parseInt(getNumber), 'd').format('YYYY-MM-DD 00:00:00')
             })
-            await userpromotion_id.save();
         }
 
         const getdeactiveUser = await UserPromotion.findById(userpromotion_id);
@@ -160,5 +183,8 @@ router.post('/activeUserPromotion', async (req, res) => {
         res.json({ "code": "ERROR", message: error.message });
     }
 });
+
+
+
 
 module.exports = router;

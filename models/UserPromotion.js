@@ -9,12 +9,12 @@ const userpromotionSchema = new mongoose.Schema({
         default: false
      },
      startDate: {
-         type: String,
-          default: moment().format('DD/MM/YYYY')
+         type: Date,
+         default: Date.now
      },
      endDate: {
-         type: String,
-          default: moment().format('DD/MM/YYYY')
+         type: Date,
+         default: Date.now
      },
      isActive: {
          type: Boolean,

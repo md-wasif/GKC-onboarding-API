@@ -1,8 +1,7 @@
 const mongoose = require('mongoose');
 const router = require('express').Router();
-const atob = require('atob');
 const bcrypt = require('bcrypt');
-const verify = require('../utils/verifyToken');
+const verify = require('../middleware/verifyToken');
 
 
 const User = require('../models/User');
@@ -37,7 +36,7 @@ router.post('/createUser', verify, async (req, res) => {
 
 
 
-router.get('/getUser', async (req, res) => {
+router.get('/getUser', verify, async (req, res) => {
     const userinfo_Id = mongoose.Types.ObjectId(req.query.userId);
     let getuserDetails;
     let checkBrand;
@@ -70,7 +69,7 @@ router.get('/getUser', async (req, res) => {
 
 
 
-router.put('/editUser/:id', async (req, res) => {
+router.put('/editUser/:id', verify, async (req, res) => {
     try {
         const updateuser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
         res.json({ "code": "OK", "data": updateuser });
@@ -81,7 +80,7 @@ router.put('/editUser/:id', async (req, res) => {
 
 
 
-router.get('/getUsers', async (req, res) => {
+router.get('/getUsers', verify, async (req, res) => {
     //let userdetails;
     let users;
     try {
@@ -130,7 +129,7 @@ router.get('/getUsers', async (req, res) => {
 
 
 
-router.put('/deactivateUser', async (req, res) => {
+router.put('/deactivateUser', verify, async (req, res) => {
 
     var userinfo_id = mongoose.Types.ObjectId(req.query.userId);
 
@@ -147,7 +146,7 @@ router.put('/deactivateUser', async (req, res) => {
 });
 
 
-router.delete('/deleteUser/:id', async (req, res) => {
+router.delete('/deleteUser/:id', verify, async (req, res) => {
     try {
         const removedUser = await User.remove({ _id: req.params.id });
         res.json({ "code": "OK", "data": removedUser });
