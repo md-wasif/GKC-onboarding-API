@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const router = require('express').Router();
 const moment = require('moment');
-const {userTokenFilter} = require('../utils/userFilter');
+const { userTokenFilter } = require('../utils/userFilter');
 
 
 const verify = require('../middleware/verifyToken');
@@ -50,15 +50,35 @@ router.get('/getAllPromotions', verify, async (req, res) => {
             }
         },
         {
+            $match: {
+                isActive: true,
+                isDeleted: false,
+                $or: [
+                    {
+                        "userpromotions.user": userId,
+                        "userpromotions.endDate": {
+                            $gt: new Date()
+                        },
+                        "userpromotions.isActive": true,
+                        "userpromotions.isDeleted": false
+                    },
+                    {
+                        userpromotions: { $exists: false }
+                    }
+                ]
+
+            }
+        },
+        {
             $project: {
                 endDate: {
                     $dateToString: {
-                        format: "%Y-%m-%d",
+                        format: "%m-%d-%Y",
                         date: "$userpromotions.endDate"
                     }
                 }, startDate: {
                     $dateToString: {
-                        format: "%Y-%m-%d",
+                        format: "%m-%d-%Y",
                         date: "$userpromotions.startDate"
                     }
                 },
@@ -68,59 +88,7 @@ router.get('/getAllPromotions', verify, async (req, res) => {
                 userpromotions: 1
             }
         },
-        //         userpromotions: 1,
-        //         name: 1,
-        //         description:1,
-        //         // isActive: 1
-        //     }
-        // },
-        // {
-        //     $match: {
-        //         //isActive: true,
-        //        // isDeleted: false,
-        //         "userpromotions.user": userId,
-        //          "userpromotions.endDate": {$gt: new Date()},
-        //         //  "userpromotions.isActive": true,
-        // }}
-        // {$group: {
-        //      _id: {
-        //          userpromo: "$userpromotions", name: "$name", description: "$description", isActive: "$isActive"
-        //      }  
-        // }},{
-        //     $project: {
-        //         endDate: {
-        //                          $dateToString: {
-        //                              format: "%Y-%m-%d",
-        //                              date: "$userpromo.endDate"
-        //                          }
-        //                      },
-        //     }
-        // }
-       ])
-
-        // var obj = [];
-        // getPromotions.forEach((promo) => {
-        //     //  console.log(promo.name);
-        //     if(promo.userpromotions){
-        //          obj.push({
-        //              '_id': promo._id,
-        //              'name' : promo.name, 
-        //             'description': promo.description,
-        //             'isActive': promo.userpromotions.isActive,
-        //             'startDate' : promo.userpromotions.startDate,
-        //             'endDate' :promo.userpromotions.endDate});
-        //     }
-        //     else{
-        //         obj.push({
-        //             '_id': promo._id,
-        //             'name' : promo.name, 
-        //             'description': promo.description,
-        //             'isActive': promo.isActive,
-        //             'startDate': '',
-        //             'endDate': ''})
-        //         };
-        // })
-        //console.log(obj);
+        ])
         res.json({ "code": "OK", "data": promotions });
     } catch (error) {
         res.json({ "code": "ERROR", message: error.message });
@@ -163,7 +131,7 @@ router.post('/activeUserPromotion', async (req, res) => {
                 user: userId,
                 _id: userpromotion_id
             },
-                { $set: { "isActive": getData, "endDate": moment().add(7*parseInt(getNumber), 'd').format('YYYY-MM-DD 00:00:00')} }
+                { $set: { "isActive": getData, "endDate": moment().add(7 * parseInt(getNumber), 'd').format('YYYY-MM-DD 00:00:00') } }
                 // [{ $set: { "isActive": getData, endDate: { $add: ["$endDate", getNumber * 7 * 24 * 60 * 60000] } } }],
             )
         }
@@ -173,7 +141,7 @@ router.post('/activeUserPromotion', async (req, res) => {
                 promotion: promotion_id,
                 isActive: getData,
                 startDate: moment().format('YYYY-MM-DD 00:00:00'),
-                endDate: moment().add(7*parseInt(getNumber), 'd').format('YYYY-MM-DD 00:00:00')
+                endDate: moment().add(7 * parseInt(getNumber), 'd').format('YYYY-MM-DD 00:00:00')
             })
         }
 

@@ -20,7 +20,7 @@ const promotionSchema = new mongoose.Schema({
     },
     isActive: {
         type: Boolean,
-        default: false
+        default: true
     }
 }, {
     timestamps: true

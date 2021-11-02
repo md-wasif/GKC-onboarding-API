@@ -18,7 +18,7 @@ const userpromotionSchema = new mongoose.Schema({
      },
      isActive: {
          type: Boolean,
-         default: false
+         default: true
      },
      user: {
         type: mongoose.Schema.Types.ObjectId, ref: 'User'
