@@ -13,7 +13,7 @@ const userBrandSchema = new mongoose.Schema({
   },
   restaurantUrl: {
     type: Object,
-    default: null
+    default: []
   },
   user: {
     type: mongoose.Schema.Types.ObjectId, ref: 'User'
