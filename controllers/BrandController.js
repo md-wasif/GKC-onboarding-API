@@ -21,7 +21,7 @@ router.get('/getAllBrands', verify, async (req, res) => {
     try {
 
         userBrands = await UserBrand.aggregate([{
-            $match: { user: userId, isDeleted: 1}
+            $match: { user: userId, isDeleted: false}
         },
         {
             $lookup: {
@@ -53,7 +53,7 @@ router.get('/getCuisines', verify, async (req, res) => {
 
     try {
         const cuisines = await Cuisine.aggregate([
-            {$match: {isDeleted: false}},
+           // {$match: {isDeleted: false}},
             {
                 $project: {
                     name: 1,
@@ -75,7 +75,7 @@ router.get('/getBrands', verify, async (req, res) => {
     var cuisine_Id = mongoose.Types.ObjectId(req.query.cuisineId);
     try {
         const brands = await Brand.aggregate([{
-            $match: { cuisine: cuisine_Id, isDeleted: false }
+            $match: { cuisine: cuisine_Id }
         }, {
             $project: {
                 name: 1,
@@ -98,7 +98,7 @@ router.get('/getProducts', verify, async (req, res) => {
     // var category = mongoose.Types.ObjectId(req.query.category);
     try {
         const products = await Category.aggregate([{
-            $match: { brand: brand_Id, isDeleted: false },
+            $match: { brand: brand_Id },
         },
         {
             $lookup: {
