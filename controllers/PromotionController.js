@@ -129,15 +129,25 @@ router.post('/activeUserPromotion', async (req, res) => {
     let promotionId = mongoose.Types.ObjectId(req.query.Id);
     let userpromotionId;
     try {
-        const getuserPromotion = await UserPromotion.findOne({ promotion: promotionId, user: userId, isDeleted: false });
-        if (getuserPromotion != undefined && getuserPromotion.length != 0) {
+        const getuserPromotion = await UserPromotion.findOne({ promotion: promotionId, user: userId});
+        if(getData == false && getuserPromotion != undefined && getuserPromotion.length != 0){
+                   await UserPromotion.updateOne({
+                       $set: {
+                           "isActive": getData, 
+                           "isDeleted": true, 
+                           "endDate": "", 
+                           "startDate": ""
+                        }
+                   })
+        }
+        else if (getuserPromotion != undefined && getuserPromotion.length != 0) {
 
             userpromotionId = getuserPromotion._id;
-            await UserPromotion.updateOne({
+            await UserPromotion.updateMany({
                 user: userId,
                 _id: userpromotionId
             },
-                { $set: { "isActive": getData, "endDate": moment().add(7 * parseInt(getNumber), 'd').format('YYYY-MM-DD 00:00:00') } }
+                { $set: { "isActive": getData, "isDeleted": false, "startDate": moment().format('YYYY-MM-DD h:mm:ss'), "endDate": moment().add(7 * parseInt(getNumber), 'd').format('YYYY-MM-DD h:mm:ss') } }
                 // [{ $set: { "isActive": getData, endDate: { $add: ["$endDate", getNumber * 7 * 24 * 60 * 60000] } } }],
             )
         }
@@ -146,8 +156,8 @@ router.post('/activeUserPromotion', async (req, res) => {
                 user: userId,
                 promotion: promotionId,
                 isActive: getData,
-                startDate: moment().format('YYYY-MM-DD 00:00:00'),
-                endDate: moment().add(7 * parseInt(getNumber), 'd').format('YYYY-MM-DD 00:00:00')
+                startDate: moment().format('YYYY-MM-DD h:mm:ss'),
+                endDate: moment().add(7 * parseInt(getNumber), 'd').format('YYYY-MM-DD h:mm:ss')
             })
         }
 
