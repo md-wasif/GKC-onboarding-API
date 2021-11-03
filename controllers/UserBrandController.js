@@ -42,9 +42,9 @@ router.get('/getUser', verify, async (req, res) => {
     let checkBrand;
     try {
 
-        getuserDetails = await User.findOne({ _id: userinfo_Id }, { _id: 1, firstName: 1, lastName: 1, email: 1, isActive: 1 });
+        getuserDetails = await User.findOne({ _id: userinfo_Id, isDeleted: false}, { _id: 1, firstName: 1, lastName: 1, email: 1, isActive: 1 });
         checkBrand = await UserBrand.aggregate([{
-            $match: { user: userinfo_Id }
+            $match: { user: userinfo_Id, isDeleted: false}
         }, {
             $lookup: {
                 from: "brands",
@@ -86,6 +86,8 @@ router.get('/getUsers', verify, async (req, res) => {
     try {
         // users = await User.find();
         users = await User.aggregate([{
+            $match: {isDeleted: false}},
+            {
             $lookup: {
                 from: "userbrands",
                 localField: "_id",
@@ -111,16 +113,6 @@ router.get('/getUsers', verify, async (req, res) => {
             }
         }
         ])
-        // let products = []
-        // users.forEach((item) => {
-        //     products.push(item.brands)
-        // })
-        // //console.log(users[0].brands)
-        // users[0].brands = products
-        // users.splice(1);
-
-        //console.log(userdetails);
-        //console.log(users[0]);
         res.json({ "code": "OK", "data": users });
     } catch (error) {
         res.json({ "code": "ERROR", message: error.message });
@@ -136,6 +128,7 @@ router.put('/deactivateUser', verify, async (req, res) => {
     try {
         const getUser = req.body.isActive;
         await User.updateOne({ _id: userinfo_id },
+            {$match: {isDeleted: false}},
             { $set: { "isActive": getUser } }
         );
         const getdeactiveUser = await User.findById(userinfo_id);
@@ -148,7 +141,7 @@ router.put('/deactivateUser', verify, async (req, res) => {
 
 router.delete('/deleteUser/:id', verify, async (req, res) => {
     try {
-        const removedUser = await User.remove({ _id: req.params.id });
+        const removedUser = await User.remove({ _id: req.params.id, isDeleted: false});
         res.json({ "code": "OK", "data": removedUser });
     } catch (error) {
         res.json({ "code": "ERROR", message: error.message });

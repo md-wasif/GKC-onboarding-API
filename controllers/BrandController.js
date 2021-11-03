@@ -21,7 +21,7 @@ router.get('/getAllBrands', verify, async (req, res) => {
     try {
 
         userBrands = await UserBrand.aggregate([{
-            $match: { user: userId }
+            $match: { user: userId, isDeleted: 1}
         },
         {
             $lookup: {
@@ -53,6 +53,7 @@ router.get('/getCuisines', verify, async (req, res) => {
 
     try {
         const cuisines = await Cuisine.aggregate([
+            {$match: {isDeleted: false}},
             {
                 $project: {
                     name: 1,
@@ -74,7 +75,7 @@ router.get('/getBrands', verify, async (req, res) => {
     var cuisine_Id = mongoose.Types.ObjectId(req.query.cuisineId);
     try {
         const brands = await Brand.aggregate([{
-            $match: { cuisine: cuisine_Id }
+            $match: { cuisine: cuisine_Id, isDeleted: false }
         }, {
             $project: {
                 name: 1,
@@ -97,7 +98,7 @@ router.get('/getProducts', verify, async (req, res) => {
     // var category = mongoose.Types.ObjectId(req.query.category);
     try {
         const products = await Category.aggregate([{
-            $match: { brand: brand_Id }
+            $match: { brand: brand_Id, isDeleted: false },
         },
         {
             $lookup: {
@@ -123,7 +124,7 @@ router.post('/createBrand', verify, async (req, res) => {
     const userId = await userTokenFilter(token);
     const brandExist = await UserBrand.findOne({ brand: req.body.brand, user: userId });
     if (brandExist) return res.status(200).send({ "code": "OK", "message": "Brand already exists.." });
-
+    
     const newUser = await UserBrand.create({
         user: userId,
         brand: req.body.brand,
@@ -131,7 +132,6 @@ router.post('/createBrand', verify, async (req, res) => {
         restaurantUrl: req.body.url,
     });
     try {
-        const userbrands = await newUser.save();
         res.json({ "code": "OK", "data": { user: newUser._id } });
     } catch (error) {
         res.json({ "code": "ERROR", message: error.message });
@@ -147,7 +147,7 @@ router.get('/viewBrand', verify, async (req, res) => {
     try {
 
         userbrands = await UserBrand.aggregate([{
-            $match: { _id: userBrandId }
+            $match: { _id: userBrandId, isDeleted: false}
         },
         {
             $unwind: "$products"
@@ -199,6 +199,7 @@ router.put('/editBrand', verify, async (req, res) => {
     try {
         const getProducts = req.body.products;
         await UserBrand.updateOne({ _id: userbrandId },
+            {$match: {isDeleted: false}},
             { $set: { "products": getProducts } }
         );
         const getneweditBrand = await UserBrand.findById(userbrandId);
@@ -216,6 +217,7 @@ router.put('/toggleBrand', verify, async (req, res) => {
     try {
         const getUser = req.body.isActive;
         await UserBrand.updateOne({ _id: userbrand_id },
+            {$match: {isDeleted: false}},
             { $set: { "isActive": getUser } }
         );
         const getdeactiveUserbrand = await UserBrand.findById(userbrand_id);
