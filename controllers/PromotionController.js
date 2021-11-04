@@ -82,19 +82,22 @@ router.get('/getAllPromotions', verify, async (req, res) => {
             }
         ]);
         let resultPromotions = [];
+        let i = 0;
         for(let p=0; p<promotions.length; p++){
             const promo = promotions[p];
-            if(userpromotion.length && (userpromotion[p] == undefined || promotions[p]._doc.name == userpromotion[p].name)){     
+            if(userpromotion.length && i < userpromotion.length && promotions[p]._doc.name == userpromotion[i].name){     
                   resultPromotions.push({
-                      promo, 
-                      'userpromotions': userpromotion[0].userpromotions,
-                      'startDate': userpromotion[0].startDate,
-                      'endDate': userpromotion[0].endDate
+                      promo,
+                      'userpromotions': userpromotion[i].userpromotions,
+                      'startDate': userpromotion[i].startDate,
+                      'endDate': userpromotion[i].endDate
                     });
+                    i++;
             }
             else{
                 resultPromotions.push({promo});
             }
+           
         }
 
         res.json({ "code": "OK", "data": resultPromotions });
