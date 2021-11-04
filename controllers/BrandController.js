@@ -72,7 +72,7 @@ router.get('/getCuisines', verify, async (req, res) => {
 
 router.get('/getBrands', verify, async (req, res) => {
 
-    let cuisine_Id = mongoose.Types.ObjectId(req.query.cuisineId);
+    let cuisine_Id = mongoose.Types.ObjectId(req.query.Id);
     try {
         const brands = await Brand.aggregate([{
             $match: { cuisine: cuisine_Id, isDeleted: false }
@@ -94,7 +94,7 @@ router.get('/getBrands', verify, async (req, res) => {
 
 router.get('/getProducts', verify, async (req, res) => {
 
-    let brand_Id = mongoose.Types.ObjectId(req.query.brand);
+    let brand_Id = mongoose.Types.ObjectId(req.query.Id);
     // var category = mongoose.Types.ObjectId(req.query.category);
     try {
         const products = await Category.aggregate([{
@@ -122,7 +122,7 @@ router.post('/createBrand', verify, async (req, res) => {
 
     const token = req.header('auth-token');
     const userId = await userTokenFilter(token);
-    const brandExist = await UserBrand.findOne({ brand: req.body.brand, user: userId });
+    const brandExist = await UserBrand.findOne({ brand: req.body.Id, user: userId });
     if (brandExist) return res.status(200).send({ "code": "OK", "message": "Brand already exists.." });
     
     const newUser = await UserBrand.create({
@@ -142,7 +142,7 @@ router.post('/createBrand', verify, async (req, res) => {
 
 router.get('/viewBrand', verify, async (req, res) => {
 
-    let userBrandId = mongoose.Types.ObjectId(req.query.userBrand);
+    let userBrandId = mongoose.Types.ObjectId(req.query.Id);
     let userbrands;
     try {
 
@@ -195,11 +195,11 @@ router.get('/viewBrand', verify, async (req, res) => {
 
 router.put('/editBrand', verify, async (req, res) => {
 
-    let userbrandId = mongoose.Types.ObjectId(req.query.userBrand);
+    let userbrandId = mongoose.Types.ObjectId(req.query.Id);
     try {
         const getProducts = req.body.products;
-        await UserBrand.updateOne({ _id: userbrandId },
-            {$match: {isDeleted: false}},
+        await UserBrand.updateOne({ _id: userbrandId, isDleted: false },
+            //{$match: {isDeleted: false}},
             { $set: { "products": getProducts } }
         );
         const getneweditBrand = await UserBrand.findById(userbrandId);
@@ -212,12 +212,12 @@ router.put('/editBrand', verify, async (req, res) => {
 
 router.put('/toggleBrand', verify, async (req, res) => {
 
-    let userbrand_id = mongoose.Types.ObjectId(req.query.userBrand);
+    let userbrand_Id = mongoose.Types.ObjectId(req.query.ID);
 
     try {
         const getUser = req.body.isActive;
-        await UserBrand.updateOne({ _id: userbrand_id },
-            {$match: {isDeleted: false}},
+        await UserBrand.updateOne({ _id: userbrand_Id, isDeleted: false},
+           // {$match: {isDeleted: false}},
             { $set: { "isActive": getUser } }
         );
         const getdeactiveUserbrand = await UserBrand.findById(userbrand_id);

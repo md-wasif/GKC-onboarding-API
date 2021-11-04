@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const router = require('express').Router();
 const bcrypt = require('bcrypt');
 const verify = require('../middleware/verifyToken');
+const { registerValidation} = require('../utils/validation');
 
 
 const User = require('../models/User');
@@ -16,6 +17,13 @@ router.post('/createUser', verify, async (req, res) => {
     // const filterId = await parseJwt(token);
     // const userId = filterId.id;
     // const userId = await tokenuserFilter();
+
+    const { error } = registerValidation(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+
+    const emailExist = await User.findOne({ email: req.body.email });
+    if (emailExist) return res.status(400).send('Email already exists');
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
@@ -37,7 +45,7 @@ router.post('/createUser', verify, async (req, res) => {
 
 
 router.get('/getUser', verify, async (req, res) => {
-    const userinfo_Id = mongoose.Types.ObjectId(req.query.userId);
+    const userinfo_Id = mongoose.Types.ObjectId(req.query.Id);
     let getuserDetails;
     let checkBrand;
     try {
@@ -123,12 +131,12 @@ router.get('/getUsers', verify, async (req, res) => {
 
 router.put('/deactivateUser', verify, async (req, res) => {
 
-    var userinfo_id = mongoose.Types.ObjectId(req.query.userId);
+    var userinfo_id = mongoose.Types.ObjectId(req.query.Id);
 
     try {
         const getUser = req.body.isActive;
-        await User.updateOne({ _id: userinfo_id },
-            {$match: {isDeleted: false}},
+        await User.updateOne({ _id: userinfo_id, isDeleted: false },
+           // {$match: {isDeleted: false}},
             { $set: { "isActive": getUser } }
         );
         const getdeactiveUser = await User.findById(userinfo_id);

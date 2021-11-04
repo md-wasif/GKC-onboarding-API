@@ -36,66 +36,139 @@ router.get('/getAllPromotions', verify, async (req, res) => {
     const userId = await userTokenFilter(token);
     try {
 
-        const promotions = await Promotion.aggregate([{
+        // const promotions = await Promotion.aggregate([{
+        //     $lookup: {
+        //         from: "userpromotions",
+        //         localField: "_id",
+        //         foreignField: "promotion",
+        //         as: "userpromotions"
+        //     }
+        // }, {
+        //     $unwind: {
+        //         path: "$userpromotions",
+        //         preserveNullAndEmptyArrays: true
+        //     }
+        // },
+        // {
+        //     $match: {
+        //         isActive: true,
+        //         isDeleted: false,
+        //         $or: [
+        //             {
+        //                 "userpromotions.user": userId,
+        //                 "userpromotions.endDate": {
+        //                     $gt: new Date()
+        //                 },
+        //                 "userpromotions.isActive": true,
+        //                 "userpromotions.isDeleted": false
+        //             },
+        //             {
+        //                 userpromotions: { $exists: false}
+        //             },
+        //             {
+        //                 "userpromotions.isActive": false
+        //             },
+        //             {
+        //                 "userpromotions.isDeleted": true
+        //             }
+        //         ]
+        //     }
+        // },
+        // {
+        //     $project: {
+        //         endDate: {
+        //             $dateToString: {
+        //                 format: "%m-%d-%Y",
+        //                 date: "$userpromotions.endDate"
+        //             }
+        //         }, startDate: {
+        //             $dateToString: {
+        //                 format: "%m-%d-%Y",
+        //                 date: "$userpromotions.startDate"
+        //             }
+        //         },
+        //         name: 1,
+        //         description: 1,
+        //         isActive: 1,
+        //         isDeleted: 1,
+        //         userpromotions: 1
+        //     }
+        // },
+        // ])
+        let promotions = await Promotion.find({});
+        const userpromotion = await Promotion.aggregate([{
             $lookup: {
-                from: "userpromotions",
-                localField: "_id",
-                foreignField: "promotion",
-                as: "userpromotions"
-            }
-        }, {
-            $unwind: {
-                path: "$userpromotions",
-                preserveNullAndEmptyArrays: true
-            }
-        },
-        {
-            $match: {
-                isActive: true,
-                isDeleted: false,
-                $or: [
-                    {
-                        "userpromotions.user": userId,
-                        "userpromotions.endDate": {
-                            $gt: new Date()
-                        },
-                        "userpromotions.isActive": true,
-                        "userpromotions.isDeleted": false
-                    },
-                    {
-                        userpromotions: { $exists: false}
-                    },
-                    {
-                        "userpromotions.isActive": false
-                    },
-                    {
-                        "userpromotions.isDeleted": true
-                    }
-                ]
-            }
-        },
-        {
-            $project: {
-                endDate: {
-                    $dateToString: {
-                        format: "%m-%d-%Y",
-                        date: "$userpromotions.endDate"
-                    }
-                }, startDate: {
-                    $dateToString: {
-                        format: "%m-%d-%Y",
-                        date: "$userpromotions.startDate"
+                        from: "userpromotions",
+                         localField: "_id",
+                         foreignField: "promotion",
+                         as: "userpromotions"
+                     }
+                 },{
+                     $unwind: {
+                    path: "$userpromotions",
+                    preserveNullAndEmptyArrays: true
+                     }
+                 },
+                 {
+                     $match: {
+                     "userpromotions.user": userId,
+                     "userpromotions.endDate": {
+                     $gt: new Date()},
+                     "userpromotions.isActive": true,
+                     "userpromotions.isDeleted": false
                     }
                 },
-                name: 1,
-                description: 1,
-                isActive: 1,
-                isDeleted: 1,
-                userpromotions: 1
+            //     {
+            // $project: {
+            //     endDate: {
+            //         $dateToString: {
+            //             format: "%m-%d-%Y",
+            //             date: "$userpromotions.endDate"
+            //         }
+            //     }, startDate: {
+            //         $dateToString: {
+            //             format: "%m-%d-%Y",
+            //             date: "$userpromotions.startDate"
+            //         }
+            //     },
+            // }
+        ]);
+        //var Obj = [];
+        let brandsArr = [];
+        for(let p=0; p<promotions.length; p++){
+            const promo = promotions[p];
+            if(userpromotion.length && promotions[p]._doc.name == userpromotion[0].name){     
+                  brandsArr.push({promo, 'userpromotions': userpromotion[0].userpromotions});
+                 // brandsArr = brandsArr.concat(promo.userpromotions);
             }
-        },
-        ])
-        res.json({ "code": "OK", "data": promotions });
+            else{
+                brandsArr.push({promo});
+            }
+        }
+       // promotions = brandsArr[0].userpromotions
+        // promotions.forEach((promo) => {
+        //     if(userpromotion.length && promo._doc.name == userpromotion[0].name){
+        //         brandsArr = brandsArr.concat(userpromotion[0].userpromotions);
+        //         promo = brandsArr;
+        //     }
+        // })
+        // brandsArr.forEach((brand) => {
+        //     console.log(brand);
+        // })
+        //promotions = brandsArr;
+       // console.log(brandsArr);
+        //promotions = brandsArr;
+       // getuserDetails._doc.brands = brandsArr;
+        // promotions.forEach((promo) => {
+        //     if(userpromotion.length){
+        //         //console.log(promo._id);
+        //         //console.log(userpromotion[0].userpromotions.promotion);
+        //     //    if(promo._id == userpromotion[0].userpromotions.promotion){
+        //     //        console.log('Test');
+        //     //    }
+        //     }
+        // })
+        res.json({ "code": "OK", "data": brandsArr });
     } catch (error) {
         res.json({ "code": "ERROR", message: error.message });
     }
