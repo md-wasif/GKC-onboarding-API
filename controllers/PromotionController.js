@@ -136,7 +136,11 @@ router.post('/activeUserPromotion', async (req, res) => {
     try {
         const getuserPromotion = await UserPromotion.findOne({ promotion: promotionId, user: userId});
         if(getData == false && getuserPromotion != undefined && getuserPromotion.length != 0){
-                   await UserPromotion.updateOne({
+            userpromotionId = getuserPromotion._id;
+                   await UserPromotion.updateMany({
+                    user: userId,
+                    _id: userpromotionId
+                   },{
                        $set: {
                            "isActive": getData, 
                            "isDeleted": true, 
