@@ -212,7 +212,7 @@ router.put('/editBrand', verify, async (req, res) => {
 
 router.put('/toggleBrand', verify, async (req, res) => {
 
-    let userbrand_Id = mongoose.Types.ObjectId(req.query.ID);
+    let userbrand_Id = mongoose.Types.ObjectId(req.query.Id);
 
     try {
         const getUser = req.body.isActive;
