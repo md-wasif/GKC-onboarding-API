@@ -10,7 +10,7 @@ const config = require('../config/token');
 router.post('/register', async (req, res) => {
 
   const { error } = registerValidation(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error) return res.json({"code": "ERROR", "message": error.details[0].message});
 
   const emailExist = await User.findOne({ email: req.body.email });
   if (emailExist) return res.json({"code": "ERROR", "message": "Email already exists"});
@@ -39,7 +39,7 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
 
   const { error } = loginValidation(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error) return res.json({"code" : "ERROR", "message": error.details[0].message});
 
   //Checking if the email exists.
   const user = await User.findOne({ email: req.body.email });
