@@ -6,19 +6,19 @@ const { registerValidation, loginValidation } = require('../utils/validation');
 const config = require('../config/token'); 
 
 
-//Register
+
 router.post('/register', async (req, res) => {
 
   const { error } = registerValidation(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
   const emailExist = await User.findOne({ email: req.body.email });
-  if (emailExist) return res.status(400).send('Email already exists');
+  if (emailExist) return res.json({"code": "ERROR", "message": "Email already exists"});
 
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
-  //Create a new user
+
   const user = new User({
     firstName: req.body.firstName,
     lastName: req.body.lastName,
@@ -35,7 +35,7 @@ router.post('/register', async (req, res) => {
 });
 
 
-//Login
+
 router.post('/login', async (req, res) => {
 
   const { error } = loginValidation(req.body);
@@ -58,7 +58,7 @@ router.post('/login', async (req, res) => {
       "type": "Wrong password",
       "message": "Password entered is wrong"
     }
-  }); //.send('password is incorrect!');
+  }); 
 
   const token = jwt.sign({ id: user._id }, config.secret, {
     expiresIn: 86400 // expires in 24 hours
@@ -75,7 +75,7 @@ router.post('/login', async (req, res) => {
 });
 
 
-//Logout
+
 router.get('/logout', async (req, res) => {
   res.status(200).json({
     "code": "OK",
@@ -86,8 +86,7 @@ router.get('/logout', async (req, res) => {
   }); 
 });
 
-//const token = jwt.sign({_id: user._id}, process.env.TOKEN_SECRET);
-// res.header('auth-token', token).send(token);
-//res.send('Logged In!');
+
+
 
 module.exports = router;

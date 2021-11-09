@@ -89,10 +89,8 @@ router.put('/editUser/:id', verify, async (req, res) => {
 
 
 router.get('/getUsers', verify, async (req, res) => {
-    //let userdetails;
     let users;
     try {
-        // users = await User.find();
         users = await User.aggregate([{
             $match: {isDeleted: false}},
             {
@@ -131,12 +129,11 @@ router.get('/getUsers', verify, async (req, res) => {
 
 router.put('/deactivateUser', verify, async (req, res) => {
 
-    var userinfo_id = mongoose.Types.ObjectId(req.query.Id);
+    let userinfo_Id = mongoose.Types.ObjectId(req.query.Id);
 
     try {
         const getUser = req.body.isActive;
-        await User.updateOne({ _id: userinfo_id, isDeleted: false },
-           // {$match: {isDeleted: false}},
+        await User.updateOne({ _id: userinfo_Id, isDeleted: false },
             { $set: { "isActive": getUser } }
         );
         const getdeactiveUser = await User.findById(userinfo_id);

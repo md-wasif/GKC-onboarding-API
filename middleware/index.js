@@ -1,6 +1,6 @@
-var middlewareConfig = require('../config/middlewares');
-var verifyToken = require('./verifyToken');
-var middlewares = {verifyToken};
+const middlewareConfig = require('../config/middlewares');
+const verifyToken = require('./verifyToken');
+const middlewares = {verifyToken};
 
 
 module.exports = async function (req, res, next) {

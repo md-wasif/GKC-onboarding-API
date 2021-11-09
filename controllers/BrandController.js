@@ -199,7 +199,6 @@ router.put('/editBrand', verify, async (req, res) => {
     try {
         const getProducts = req.body.products;
         await UserBrand.updateOne({ _id: userbrandId, isDleted: false },
-            //{$match: {isDeleted: false}},
             { $set: { "products": getProducts } }
         );
         const getneweditBrand = await UserBrand.findById(userbrandId);
