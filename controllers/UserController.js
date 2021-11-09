@@ -61,7 +61,7 @@ router.post('/login', async (req, res) => {
 
 
   //Checking if the user isActive
-  const userActive = await User.findOne({isActive: false});
+  const userActive = await User.findOne({ email: req.body.email, isActive: false});
   if(userActive) return res.json({
     "code": "ERROR",
     "data": {
