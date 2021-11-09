@@ -39,7 +39,13 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
 
   const { error } = loginValidation(req.body);
-  if (error) return res.json({"code" : "ERROR", "message": error.details[0].message});
+  if (error) return res.json({
+    "code" : "ERROR", 
+    "data": {
+      "type": "Wrong Email", 
+      "message": "Email must be a valid."
+    }
+  });
 
   //Checking if the email exists.
   const user = await User.findOne({ email: req.body.email });
