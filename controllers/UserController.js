@@ -10,10 +10,20 @@ const config = require('../config/token');
 router.post('/register', async (req, res) => {
 
   const { error } = registerValidation(req.body);
-  if (error) return res.json({"code": "ERROR", "message": error.details[0].message});
+  if (error) return res.json({
+    "code": "ERROR", 
+    "data": {
+    "type": `Wrong ${error.details[0].path}`, 
+    "message": error.details[0].message}
+  });
 
   const emailExist = await User.findOne({ email: req.body.email });
-  if (emailExist) return res.json({"code": "ERROR", "message": "Email already exists"});
+  if (emailExist) return res.json({
+    "code": "ERROR",
+    "data": {
+    "type": "Wrong email", 
+    "message": "Email already exists"}
+  });
 
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(req.body.password, salt);
@@ -29,9 +39,9 @@ router.post('/register', async (req, res) => {
   try {
     const savedUser = await user.save();
     //res.send({"code":"OK", "data": {user: user._id}});
-    res.send({ "code": "OK", "message": "Registered Sucessfully.." });
+    res.json({ "code": "OK", "message": "Registered Sucessfully.." });
   } catch (error) {
-    res.status(400).send({ "code": "ERROR", message: error.message });
+    res.json({ "code": "ERROR", message: error.message });
   }
 });
 

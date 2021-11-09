@@ -13,16 +13,22 @@ const UserBrand = require('../models/UserBrand');
 
 router.post('/createUser', verify, async (req, res) => {
 
-    // const token = req.header('auth-token');
-    // const filterId = await parseJwt(token);
-    // const userId = filterId.id;
-    // const userId = await tokenuserFilter();
 
     const { error } = registerValidation(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
+    if (error) return res.json({
+        "code": "ERROR",
+        "data": {
+        "type": `Wrong ${error.details[0].path}`,  
+        "message": error.details[0].message}
+    });
 
     const emailExist = await User.findOne({ email: req.body.email });
-    if (emailExist) return res.status(400).send('Email already exists');
+    if (emailExist) return res.json({
+        "code": "ERROR",
+        "data": { 
+        "type": "Wrong email",
+        "message": "Email already exists"}
+    });
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
