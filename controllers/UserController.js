@@ -42,8 +42,8 @@ router.post('/login', async (req, res) => {
   if (error) return res.json({
     "code" : "ERROR", 
     "data": {
-      "type": "Wrong Email", 
-      "message": "Email must be a valid."
+      "type": `Wrong ${error.details[0].path}`, 
+      "message": error.details[0].message
     }
   });
 
@@ -52,7 +52,7 @@ router.post('/login', async (req, res) => {
   if (!user) return res.json({
     "code": "ERROR",
     "data": {
-      "type": "Wrong Email",
+      "type": "Wrong email",
       "message": "Email entered is wrong"
     }
   }); 
