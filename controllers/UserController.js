@@ -49,6 +49,7 @@ router.post('/register', async (req, res) => {
 
 router.post('/login', async (req, res) => {
 
+
   const { error } = loginValidation(req.body);
   if (error) return res.json({
     "code" : "ERROR", 
@@ -60,17 +61,18 @@ router.post('/login', async (req, res) => {
 
 
   //Checking if the user isActive
-  const user = await User.findOne({isActive: true});
-  if(!user) return res.json({
+  const userActive = await User.findOne({isActive: false});
+  if(userActive) return res.json({
     "code": "ERROR",
     "data": {
       "type": "User status",
       "message": "This user is not active."
     }
   })
+
   //Checking if the email exists.
-  const userActive = await User.findOne({ email: req.body.email });
-  if (!userActive) return res.json({
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) return res.json({
     "code": "ERROR",
     "data": {
       "type": "Wrong email",
