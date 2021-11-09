@@ -132,6 +132,7 @@ router.post('/activeUserPromotion', async (req, res) => {
     const getData = req.body.isActive;
     const getNumber = req.body.input;
     let promotionId = mongoose.Types.ObjectId(req.query.Id);
+    //let currentTimestamp = new Date().getTime();
     let userpromotionId;
     try {
         const getuserPromotion = await UserPromotion.findOne({ promotion: promotionId, user: userId});
@@ -156,7 +157,7 @@ router.post('/activeUserPromotion', async (req, res) => {
                 user: userId,
                 _id: userpromotionId
             },
-                { $set: { "isActive": getData, "isDeleted": false, "startDate": moment().format('YYYY-MM-DD h:mm:ss'), "endDate": moment().add(7 * parseInt(getNumber), 'd').format('YYYY-MM-DD h:mm:ss') } }
+                { $set: { "isActive": getData, "isDeleted": false, "startDate": moment().format('YYYY-MM-DD'), "endDate": moment().add(7 * parseInt(getNumber) - 1, 'd').format('YYYY-MM-DD') } }
                 // [{ $set: { "isActive": getData, endDate: { $add: ["$endDate", getNumber * 7 * 24 * 60 * 60000] } } }],
             )
         }
@@ -165,8 +166,8 @@ router.post('/activeUserPromotion', async (req, res) => {
                 user: userId,
                 promotion: promotionId,
                 isActive: getData,
-                startDate: moment().format('YYYY-MM-DD h:mm:ss'),
-                endDate: moment().add(7 * parseInt(getNumber), 'd').format('YYYY-MM-DD h:mm:ss')
+                startDate: moment().format('YYYY-MM-DD'),
+                endDate: moment().add(7 * parseInt(getNumber) - 1, 'd').format('YYYY-MM-DD')
             })
         }
 

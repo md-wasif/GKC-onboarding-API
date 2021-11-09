@@ -57,6 +57,7 @@ router.get('/getUser', verify, async (req, res) => {
     try {
 
         getuserDetails = await User.findOne({ _id: userinfo_Id, isDeleted: false}, { _id: 1, firstName: 1, lastName: 1, email: 1, isActive: 1 });
+        console.log(getuserDetails);
         checkBrand = await UserBrand.aggregate([{
             $match: { user: userinfo_Id, isDeleted: false}
         }, {
