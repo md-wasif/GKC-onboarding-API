@@ -114,9 +114,9 @@ router.get('/getPromotion', verify, async (req, res) => {
     // const token = req.header('auth-token');
     // const filterId = await parseJwt(token);
     // const userId = mongoose.Types.ObjectId(filterId.id)
-    const promotion_id = mongoose.Types.ObjectId(req.query.Id);
+    const promotion_Id = mongoose.Types.ObjectId(req.query.Id);
     try {
-        const saveDetails = await Promotion.findById({ _id: promotion_id, isDeleted: false });
+        const saveDetails = await Promotion.findById({ _id: promotion_Id, isDeleted: false });
         res.json({ "code": "OK", "data": saveDetails })
     } catch (error) {
         res.json({ "code": "ERROR", message: error.message });

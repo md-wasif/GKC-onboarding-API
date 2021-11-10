@@ -122,8 +122,8 @@ router.post('/createBrand', verify, async (req, res) => {
 
     const token = req.header('auth-token');
     const userId = await userTokenFilter(token);
-    const brandExist = await UserBrand.findOne({ brand: req.body.Id, user: userId });
-    if (brandExist) return res.status(200).send({ "code": "OK", "message": "Brand already exists.." });
+    const brandExist = await UserBrand.findOne({ brand: req.body.brand, user: userId });
+    if (brandExist) return res.json({ "code": "ERROR", "message": "Brand already exists.." });
     
     const newUser = await UserBrand.create({
         user: userId,
@@ -216,7 +216,6 @@ router.put('/toggleBrand', verify, async (req, res) => {
     try {
         const getUser = req.body.isActive;
         await UserBrand.updateOne({ _id: userbrand_Id, isDeleted: false},
-           // {$match: {isDeleted: false}},
             { $set: { "isActive": getUser } }
         );
         const getdeactiveUserbrand = await UserBrand.findById(userbrand_id);

@@ -57,6 +57,22 @@ router.get('/getUser', verify, async (req, res) => {
     
     try {
 
+        const checkId = await User.findOne({_id: userinfo_Id});
+        if(checkId == undefined) {
+            return res.json({
+                "code": "ERROR",
+                "data": {
+                "message": "Id is invalid"}
+              });
+        }
+        const checkDeleted = await User.findOne({_id: userinfo_Id, isDeleted: true});
+        if(checkDeleted) {
+            return res.json({
+                "code": "ERROR",
+                "data": {
+                "message": "User is deleted"}
+              });
+        }
         getuserDetails = await User.findOne({ _id: userinfo_Id, isDeleted: false}, { _id: 1, firstName: 1, lastName: 1, email: 1, isActive: 1 });
         checkBrand = await UserBrand.aggregate([{
             $match: { user: userinfo_Id, isDeleted: false}
@@ -136,9 +152,28 @@ router.get('/getUsers', verify, async (req, res) => {
 
 router.put('/deactivateUser', verify, async (req, res) => {
 
-    let userinfo_Id = mongoose.Types.ObjectId(req.query.Id);
+    const userinfo_Id = mongoose.Types.ObjectId(req.query.Id);
 
     try {
+
+        const checkId = await User.findOne({_id: userinfo_Id});
+        if(checkId == undefined) {
+            return res.json({
+                "code": "ERROR",
+                "data": {
+                "message": "Id is invalid"}
+              });
+        }
+
+        const checkDeleted = await User.findOne({_id: userinfo_Id, isDeleted: true});
+        if(checkDeleted) {
+            return res.json({
+                "code": "ERROR",
+                "data": {
+                "message": "User is deleted"}
+              });
+        }
+
         const getUser = req.body.isActive;
         await User.updateOne({ _id: userinfo_Id, isDeleted: false },
             { $set: { "isActive": getUser } }
