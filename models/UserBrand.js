@@ -21,8 +21,8 @@ const userBrandSchema = new mongoose.Schema({
   brand: {
     type: mongoose.Schema.Types.ObjectId, ref: 'Brand'
   },
-  categories:
-    [{ type: mongoose.Schema.Types.ObjectId, ref: 'Category' }],
+  // categories:
+  //   [{ type: mongoose.Schema.Types.ObjectId, ref: 'Category' }],
   products:
     [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
 }, {

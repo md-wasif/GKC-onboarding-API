@@ -151,43 +151,51 @@ router.get('/viewBrand', verify, async (req, res) => {
             $match: { _id: userBrandId, isDeleted: false}
         },
         {
+            $unwind: "$products"
+        },
+        {
+            $lookup: {
+                from: "products",
+                localField: "products",
+                foreignField: "_id",
+                as: "product"
+            }
+        }, {
+            $unwind: "$product"
+        },
+        {
+            $lookup: {
+                from: "categories",
+                localField: "product.category",
+                foreignField: "_id",
+                as: "category"
+            }
+        },{
+            $unwind: "$category"
+        },
+        {
             $lookup: {
                 from: "brands",
                 localField: "brand",
                 foreignField: "_id",
                 as: "brand"
             }
-        },{
-            $unwind: "$brand"
-        },
-        {
-            $unwind: "$categories"
-        },
-        {
-            $lookup: {
-                from: "categories",
-                localField: "categories",
-                foreignField: "_id",
-                as: "category"
-            }
         }, {
-            $unwind: "$category"
-        },
-        {
-            $lookup: {
-                from: "products",
-                localField: "category._id",
-                foreignField: "category",
-                as: "items"
-            }
-        },{
+            $unwind: "$brand"
+        }, {
             $project: {
                 brand: 1,
                 category: 1,
-                items: 1
+                product: 1,
             }
         }
         ]);
+        let products = []
+        userbrands.forEach((item) => {
+            products.push(item.product)
+        })
+        userbrands[0].product = products
+        userbrands.splice(1);
         res.json({ "code": "OK", "data": userbrands });
     } catch (error) {
         res.json({ "code": "ERROR", message: error.message });
