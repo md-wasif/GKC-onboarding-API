@@ -128,7 +128,6 @@ router.post('/createBrand', verify, async (req, res) => {
     const newUser = await UserBrand.create({
         user: userId,
         brand: req.body.brand,
-        categories: req.body.categories,
         products: req.body.products,
         restaurantUrl: req.body.url,
     });
@@ -151,19 +150,6 @@ router.get('/viewBrand', verify, async (req, res) => {
             $match: { _id: userBrandId, isDeleted: false}
         },
         {
-            $unwind: "$products"
-        },
-        {
-            $lookup: {
-                from: "products",
-                localField: "products",
-                foreignField: "_id",
-                as: "product"
-            }
-        }, {
-            $unwind: "$product"
-        },
-        {
             $lookup: {
                 from: "brands",
                 localField: "brand",
@@ -172,21 +158,47 @@ router.get('/viewBrand', verify, async (req, res) => {
             }
         }, {
             $unwind: "$brand"
-        }, {
+        },
+        {
+            $unwind: "$products"
+        },
+        {
+            $lookup: {
+                from: "products",
+                localField: "products",
+                foreignField: "_id",
+                as: "items"
+            }
+        }, 
+        {
+            $unwind: "$items"
+        },
+        {
+            $lookup: {
+                from: "categories",
+                localField: "items.category",
+                foreignField: "_id",
+                as: "category"
+            }
+        },
+        {
             $project: {
                 brand: 1,
-                product: 1
+                category: 1,
+                items: 1,
             }
         }
         ]);
-        let products = []
-        userbrands.forEach((item) => {
-            products.push(item.product)
+        let products = [];
+        userbrands.forEach((elem) => {
+            //return elem.items;
+            products.push(elem.items);
         })
-        userbrands[0].product = products
+        userbrands[0].category.push({'items': products});
+        delete userbrands[0].items
         userbrands.splice(1);
-        const getuserbrands = userbrands[0];
-        res.json({ "code": "OK", "data": getuserbrands });
+
+        res.json({ "code": "OK", "data": userbrands });
     } catch (error) {
         res.json({ "code": "ERROR", message: error.message });
     }
