@@ -165,16 +165,6 @@ router.get('/viewBrand', verify, async (req, res) => {
         },
         {
             $lookup: {
-                from: "categories",
-                localField: "product.category",
-                foreignField: "_id",
-                as: "category"
-            }
-        },{
-            $unwind: "$category"
-        },
-        {
-            $lookup: {
                 from: "brands",
                 localField: "brand",
                 foreignField: "_id",
@@ -185,8 +175,7 @@ router.get('/viewBrand', verify, async (req, res) => {
         }, {
             $project: {
                 brand: 1,
-                category: 1,
-                product: 1,
+                product: 1
             }
         }
         ]);
@@ -196,7 +185,8 @@ router.get('/viewBrand', verify, async (req, res) => {
         })
         userbrands[0].product = products
         userbrands.splice(1);
-        res.json({ "code": "OK", "data": userbrands });
+        const getuserbrands = userbrands[0];
+        res.json({ "code": "OK", "data": getuserbrands });
     } catch (error) {
         res.json({ "code": "ERROR", message: error.message });
     }
