@@ -150,6 +150,19 @@ router.get('/viewBrand', verify, async (req, res) => {
             $match: { _id: userBrandId, isDeleted: false}
         },
         {
+            $unwind: "$products"
+        },
+        {
+            $lookup: {
+                from: "products",
+                localField: "products",
+                foreignField: "_id",
+                as: "product"
+            }
+        }, {
+            $unwind: "$product"
+        },
+        {
             $lookup: {
                 from: "brands",
                 localField: "brand",
@@ -158,47 +171,21 @@ router.get('/viewBrand', verify, async (req, res) => {
             }
         }, {
             $unwind: "$brand"
-        },
-        {
-            $unwind: "$products"
-        },
-        {
-            $lookup: {
-                from: "products",
-                localField: "products",
-                foreignField: "_id",
-                as: "items"
-            }
-        }, 
-        {
-            $unwind: "$items"
-        },
-        {
-            $lookup: {
-                from: "categories",
-                localField: "items.category",
-                foreignField: "_id",
-                as: "category"
-            }
-        },
-        {
+        }, {
             $project: {
                 brand: 1,
-                category: 1,
-                items: 1,
+                product: 1
             }
         }
         ]);
-        let products = [];
-        userbrands.forEach((elem) => {
-            //return elem.items;
-            products.push(elem.items);
+        let products = []
+        userbrands.forEach((item) => {
+            products.push(item.product)
         })
-        userbrands[0].category.push({'items': products});
-        delete userbrands[0].items
+        userbrands[0].product = products
         userbrands.splice(1);
-
-        res.json({ "code": "OK", "data": userbrands });
+        const getuserbrands = userbrands[0];
+        res.json({ "code": "OK", "data": getuserbrands });
     } catch (error) {
         res.json({ "code": "ERROR", message: error.message });
     }
