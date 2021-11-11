@@ -11,12 +11,10 @@ dotenv.config({ path: './config/config.env' });
 
 connectDB();
 
-
 const userController = require('./controllers/UserController');
 const brandController = require('./controllers/BrandController');
 const userbrandController = require('./controllers/UserBrandController');
 const promotionController = require('./controllers/PromotionController');
-
 
 //Middlewares
 app.use(express.json());
@@ -29,15 +27,6 @@ app.use('/', brandController);
 app.use('/', userbrandController);
 app.use('/', promotionController);
 
-
-
-
-
-//Listen On Server
-const PORT = process.env.PORT || 5000;
-
-
-
-app.listen(PORT, console.log(`Server running in ${process.env.NODE_ENV} on port ${PORT}`));
+module.exports = app;
 
 
