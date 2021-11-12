@@ -54,8 +54,8 @@ router.post('/login', async (req, res) => {
   if (error) return res.json({
     "code" : "ERROR", 
     "data": {
-      "type": `Wrong ${error.details[0].path}`, 
-      "message": error.details[0].message
+      "type": `Wrong email`, 
+      "message": "The email or password you entered is wrong"
     }
   });
 
@@ -76,7 +76,7 @@ router.post('/login', async (req, res) => {
     "code": "ERROR",
     "data": {
       "type": "Wrong email",
-      "message": "Email entered is wrong"
+      "message": "The email or password you entered is wrong"
     }
   }); 
 
@@ -84,8 +84,8 @@ router.post('/login', async (req, res) => {
   if (!validpass) return res.json({
     "code": "ERROR",
     "data": {
-      "type": "Wrong password",
-      "message": "Password entered is wrong"
+      "type": "Wrong email",
+      "message": "The email or password you entered is wrong"
     }
   }); 
 
